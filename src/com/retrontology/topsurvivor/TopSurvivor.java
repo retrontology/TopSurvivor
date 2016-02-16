@@ -103,8 +103,8 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	
 	// Player AFK Status Change
 	@EventHandler
-    public void onLogin(AfkStatusChangeEvent event) {
-		final User user = ess.getUser((Player)event.getEntity());
+    public void onAFKChange(AfkStatusChangeEvent event) {
+		final User user = ess.getUser(((Player) event).getEntityId());
 		if (user.isAfk()){
 			
 		}
