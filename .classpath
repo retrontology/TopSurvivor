@@ -8,6 +8,7 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="C:/Users/Retrontology/Downloads/BuildTools/Plugins/afkTerminator.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Retrontology/Downloads/BuildTools/Plugins/Essentials/Essentials.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Retrontology/Downloads/BuildTools/Server/plugins/Essentials-2.x-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Retrontology/Downloads/BuildTools/CraftBukkit/target/craftbukkit-1.8.8-R0.1-SNAPSHOT.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

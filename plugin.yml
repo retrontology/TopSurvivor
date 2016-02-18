@@ -1,16 +1,16 @@
-main: com.retrontology.topsurvivor
+main: com.retrontology.topsurvivor.TopSurvivor
 name: TopSurvivor
 version: 0.1
 author: Retrontology
 description: A plugin that creates a scoreboard system from players time since last death, with afk time subtracted
 commands:
-   reset:
+   topsurvivor reset:
       description: Reset the scoreboard
       usage: /topsurvivor reset
       permission: topsurvivor.reset
-      permission-message: You're not supposed to be here :I
-   view:
+      permission-message: What do you think you are doing :I
+   topsurvivor view:
       description: View the top survivors
-      usage: /topsurvivor
+      usage: /topsurvivor view
       permission: topsurvivor.citizen
       permission-message: Become a citizen to view the full Top Survivor board

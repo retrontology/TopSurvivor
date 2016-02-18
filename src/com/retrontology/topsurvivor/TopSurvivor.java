@@ -24,28 +24,35 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	
 	private ScoreboardManager tsmanager;
 	private Scoreboard tsboard;
-	private final IEssentials ess;
+	private IEssentials ess;
 	
 	
 	/* Init */
 	
-	public TopSurvivor(IEssentials ess)
-	{
-		this.ess = ess;
-	}
-	
 	
 	/* Startup */
 	
+	
 	@Override
 	public void onEnable() {
+		
+		// Create Scoreboard
 		makeScoreboard();
+		
+		// Init online players
 		for(Player p: getServer().getOnlinePlayers()) {
 			
 		}
+		
+		// Register Events
 		getServer().getPluginManager().registerEvents(this, this);
+		
+		// Register Commands
+		TopSurvivorCommandExecutor tscommandexec = new TopSurvivorCommandExecutor(this);
+		this.getCommand("topsurvivor reset").setExecutor(tscommandexec);
+		this.getCommand("topsurvivor view").setExecutor(tscommandexec);
+		
 	}
-	
 	
 	/* Shutdown */
 	
@@ -56,31 +63,6 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	
 	
 	/* Class Functions */
-	
-	
-	
-	
-	/* User commands */
-	
-	// Template
-	@Override
-    public boolean onCommand(CommandSender sender,
-            Command command,
-            String label,
-            String[] args) {
-        if (command.getName().equalsIgnoreCase("mycommand")) {
-            sender.sendMessage("You ran /mycommand!");
-            return true;
-        }
-        return false;
-    }
-	
-	// Reset
-	
-	
-	
-	// View
-	
 	
 	
 	
@@ -100,6 +82,7 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	public void onLogin(PlayerLoginEvent event) {
 	    
 	}
+	
 	
 	// Player AFK Status Change
 	@EventHandler
