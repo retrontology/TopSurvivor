@@ -5,17 +5,13 @@ import org.bukkit.event.HandlerList;
 
 public class TopSurvivorUpdate extends Event{
 	
-	private static HandlerList handlers;
+	private static final HandlerList handlers = new HandlerList();
 	
-	public TopSurvivorUpdate() {
-		TopSurvivorUpdate.handlers = new HandlerList();
-	}
-
 	public HandlerList getHandlers() {
 		return TopSurvivorUpdate.handlers;
 	}
 	
 	public static HandlerList getHandlerList() {
-        return TopSurvivorUpdate.handlers;
+        	return TopSurvivorUpdate.handlers;
 	}
 }
