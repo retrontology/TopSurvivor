@@ -12,6 +12,7 @@ import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.ScoreboardManager;
 
 import com.earth2me.essentials.IEssentials;
+import com.earth2me.essentials.IUser;
 import com.earth2me.essentials.User;
 
 import net.ess3.api.events.AfkStatusChangeEvent;
@@ -20,7 +21,6 @@ public class TopSurvivorListener implements Listener {
 	
 	/* Class Variable */
 	
-	private IEssentials ess;
 	public TopSurvivor plugin;
 	
 	/* Constructor */
@@ -48,7 +48,8 @@ public class TopSurvivorListener implements Listener {
 	// Player AFK Status Change
 	@EventHandler
     public void onAFKChange(AfkStatusChangeEvent event) {
-		final User user = ess.getUser(((Player) event).getEntityId());
+		
+		IUser user = event.getAffected(); 
 		if (user.isAfk()){
 			
 		}

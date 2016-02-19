@@ -26,7 +26,7 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	public static Objective timesincedeathobjective;	// Ticks
 	public static Objective survivorexemptobjective;	// Flag
 	
-	private Plugin plugin;
+	private TopSurvivor tps;
 	public static Server server;
 	
 	
@@ -39,23 +39,23 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	@Override
 	public void onEnable() {
 		// Store plugin and server
-		plugin = this;
-		TopSurvivor.server = getServer();
+		tps = this;
+		tps.server = getServer();
 		
 		// Create Scoreboard
 		makeScoreboard();
 		
 		// Init online players
-		for(Player p: TopSurvivor.server.getOnlinePlayers()) {
+		for(Player p: tps.server.getOnlinePlayers()) {
 			// Set player scoreboard
 			p.setScoreboard(tsboard);
 		}
 		
 		// Register Events
-		TopSurvivor.server.getPluginManager().registerEvents(new TopSurvivorListener(this), this);
+		tps.server.getPluginManager().registerEvents(new TopSurvivorListener(this), this);
 		
 		// Register Scheduler to run every 24000 ticks/1 day
-		BukkitScheduler scheduler = TopSurvivor.server.getScheduler();
+		BukkitScheduler scheduler = tps.server.getScheduler();
 		scheduler.scheduleSyncRepeatingTask(this, new TopSurvivorTask(this), 0L, 24000L);
 		
 		// Register Commands
