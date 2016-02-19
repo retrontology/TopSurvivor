@@ -21,6 +21,13 @@ public class TopSurvivorListener implements Listener {
 	/* Class Variable */
 	
 	private IEssentials ess;
+	public TopSurvivor plugin;
+	
+	/* Constructor */
+
+	public TopSurvivorListener(TopSurvivor plugin){
+		this.plugin = plugin;
+	}
 	
 	/* Events */
 	
@@ -54,12 +61,12 @@ public class TopSurvivorListener implements Listener {
 	// Update Time Survived Objective
 	@EventHandler
     public void updateTSTime(TopSurvivorUpdate event) {
-		for(Player p: Bukkit.getServer().getOnlinePlayers()) {
-			Score exempt = TopSurvivor.survivorexemptobjective.getScore(p);
+		for(Player p: plugin.server.getOnlinePlayers()) {
+			Score exempt = plugin.survivorexemptobjective.getScore(p);
 			if(exempt.getScore() == 0){
-				Score afktime = TopSurvivor.afktimeobjective.getScore(p);
-				Score timesincedeath = TopSurvivor.timesincedeathobjective.getScore(p);
-				Score survivortime = TopSurvivor.survivorexemptobjective.getScore(p);
+				Score afktime = plugin.afktimeobjective.getScore(p);
+				Score timesincedeath = plugin.timesincedeathobjective.getScore(p);
+				Score survivortime = plugin.survivorexemptobjective.getScore(p);
 				int current = (int)Math.floor((timesincedeath.getScore() - afktime.getScore())/24000);
 				if(survivortime.getScore() < current){
 					survivortime.setScore(current);

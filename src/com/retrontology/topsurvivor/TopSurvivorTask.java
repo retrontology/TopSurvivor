@@ -6,10 +6,10 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 public class TopSurvivorTask extends BukkitRunnable{
 	
-	private final JavaPlugin plugin;
+	private TopSurvivor plugin;
 	private TopSurvivorUpdate tsupdate;
 	
-	public TopSurvivorTask (JavaPlugin plugin){
+	public TopSurvivorTask (TopSurvivor plugin){
 		this.plugin = plugin;
 		TopSurvivorUpdate tsupdate = new TopSurvivorUpdate();
 	}

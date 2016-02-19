@@ -9,6 +9,6 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="C:/Users/Retrontology/Downloads/BuildTools/Plugins/afkTerminator.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Retrontology/Downloads/BuildTools/Server/plugins/Essentials-2.x-SNAPSHOT.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Retrontology/Downloads/BuildTools/CraftBukkit/target/craftbukkit-1.8.8-R0.1-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Retrontology/Downloads/ebean-2.7.0/ebean-2.7.0/ebean-2.7.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
