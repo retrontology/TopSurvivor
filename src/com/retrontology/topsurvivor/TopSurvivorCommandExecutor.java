@@ -23,19 +23,22 @@ public class TopSurvivorCommandExecutor implements CommandExecutor {
 		Player player = (Player) sender;
 		if (cmd.getName().equalsIgnoreCase("topsurvivor")) {
 			// View
-			if(args.length == 0 || (args.length == 1 && args[0].equalsIgnoreCase("view")))
+			if((args.length == 0 || (args.length == 1 && args[0].equalsIgnoreCase("view"))) && (player.hasPermission("topsurvivor.citizen")))
 			{
 				player.sendMessage(ChatColor.AQUA + "View");
+				plugin.viewScoreboard(player);
 				return true;
 			}
 			if(args.length == 1){
 				// Reset
-				if(args[0].equalsIgnoreCase("reset")){
-					player.sendMessage(ChatColor.AQUA + "View");
+				if(args[0].equalsIgnoreCase("reset") && (player.hasPermission("topsurvivor.admin"))){
+					player.sendMessage(ChatColor.AQUA + "Reset");
+					plugin.resetScoreboard();
 					return true;
 				}
 				// Update
-				if(args[0].equalsIgnoreCase("update")){
+				if(args[0].equalsIgnoreCase("update") && (player.hasPermission("topsurvivor.admin"))){
+					player.sendMessage(ChatColor.AQUA + "Updated");
 					Bukkit.getPluginManager().callEvent(tsupdate);
 					return true;
 				}

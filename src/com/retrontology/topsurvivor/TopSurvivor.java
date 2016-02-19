@@ -84,10 +84,6 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	
 	/* Class Functions */
 	
-	
-	
-	/* Scoreboard */
-	
 	// Make Scoreboard
 	public void makeScoreboard() {
 		
@@ -117,6 +113,17 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 				
 		// Set survivor time to sidebar
 		survivortimeobjective.setDisplaySlot(DisplaySlot.SIDEBAR);
+	}
+	
+	// Reset Scoreboard
+	public void resetScoreboard() {
+		
+		
+	}
+	
+	// View Scoreboard
+	public void viewScoreboard(Player player) {
+		
 	}
 	
 }

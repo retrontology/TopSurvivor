@@ -3,10 +3,19 @@ name: TopSurvivor
 version: 0.1
 author: Retrontology
 description: A plugin that creates a scoreboard system from players time since last death, with afk time subtracted
+permissions: 
+  topsurvivor.citizen:
+    description: Required for viewing leaderboard via command
+    default: false
+  topsurvivor.admin:
+    description: Required for server admin commands such as reset, update, etc
+    default: false
 commands:
   topsurvivor:
-    description: Commands to manage Top Survivors
+    description: View Top Survivor Leaderboard
     aliases: [ts, topsurvivors] 
+    permission: topsurvivor.citizen
+    permission-message: Become a citizen to view the Top Surivor Board
     usage: |
       Use /help topsurvivor [subcommand] for more information
       /topsurvivor - View Top Survivor Leaderboard
@@ -16,13 +25,19 @@ commands:
   topsurvivor view:
     description: View Top Survivor Leaderboard
     aliases: [topsurvivor v]
+    permission: topsurvivor.citizen
+    permission-message: Become a citizen to view the Top Surivor Board
     usage: |
       /topsurvivor view
   topsurvivor reset:
     description: Reset Top Survivor Leaderboard
+    permission: topsurvivor.admin
+    permission-message: What do you think you are doing :I
     usage: |
       /topsurvivor reset
   topsurvivor update:
     description: Update Top Survivor Leaderboard
+    permission: topsurvivor.admin
+    permission-message: What do you think you are doing :I
     usage: |
       /topsurvivor update

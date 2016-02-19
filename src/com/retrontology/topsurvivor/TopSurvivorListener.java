@@ -57,6 +57,10 @@ public class TopSurvivorListener implements Listener {
 		
 	}
 	
+	// Player Death
+	
+		// Run final check
+	
 	// Player AFK Status Change
 	@EventHandler
     public void onAFKChange(AfkStatusChangeEvent event) {
