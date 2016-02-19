@@ -36,11 +36,9 @@ public class TopSurvivorListener implements Listener {
         scheduler.scheduleSyncDelayedTask(plugin, new Runnable() {
             @Override
             public void run() {
-            	TopSurvivor.server.getLogger().info("Task has run");
         		player.setScoreboard(TopSurvivor.tsboard);
         		
         		// Look to see if player has been initiated yet
-        		TopSurvivor.server.getLogger().info("player exempt status is: " + TopSurvivor.survivorexemptobjective.getScore(player).getScore());
         		if(TopSurvivor.survivorexemptobjective.getScore(player).getScore() == 0){
         			// Init player scores
         			TopSurvivor.survivorexemptobjective.getScore(player).setScore(1);
@@ -88,5 +86,6 @@ public class TopSurvivorListener implements Listener {
 				}
 			}
 		}
+		TopSurvivor.server.getLogger().info("Top Survivors list updated");
 	}
 }

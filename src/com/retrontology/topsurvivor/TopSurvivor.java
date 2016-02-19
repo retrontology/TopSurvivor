@@ -26,7 +26,6 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	public static Objective timesincedeathobjective;	// Ticks
 	public static Objective survivorexemptobjective;	// Flag
 	
-	private TopSurvivor tsp;
 	public static Server server;
 	
 	
@@ -39,14 +38,13 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	@Override
 	public void onEnable() {
 		// Store plugin and server
-		tsp = this;
-		tsp.server = getServer();
+		TopSurvivor.server = getServer();
 		
 		// Create Scoreboard
 		makeScoreboard();
 		
 		// Init online players
-		for(Player p: tsp.server.getOnlinePlayers()) {
+		for(Player p: TopSurvivor.server.getOnlinePlayers()) {
 			// Set player scoreboard
 			p.setScoreboard(tsboard);
 			if(survivorexemptobjective.getScore(p) == null){
@@ -57,16 +55,15 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		}
 		
 		// Register Events
-		tsp.server.getPluginManager().registerEvents(new TopSurvivorListener(this), this);
+		TopSurvivor.server.getPluginManager().registerEvents(new TopSurvivorListener(this), this);
 		
 		// Register Scheduler to run every 24000 ticks/1 day
-		BukkitScheduler scheduler = tsp.server.getScheduler();
+		BukkitScheduler scheduler = TopSurvivor.server.getScheduler();
 		scheduler.scheduleSyncRepeatingTask(this, new TopSurvivorTask(this), 0L, 24000L);
 		
-		// Register Commands
+		// Register Commands !NEED TO FIX!
 		TopSurvivorCommandExecutor tscommandexec = new TopSurvivorCommandExecutor(this);
-		this.getCommand("topsurvivor reset").setExecutor(tscommandexec);
-		this.getCommand("topsurvivor view").setExecutor(tscommandexec);
+		this.getCommand("topsurvivor").setExecutor(tscommandexec);
 		
 	}
 	
@@ -102,10 +99,13 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		if((afktimeobjective = tsboard.getObjective("afktime")) == null){
 			afktimeobjective = tsboard.registerNewObjective("afktime", "dummy");
 		}
+		if(!(afktimeobjective.getDisplayName().equals("Top AFKers(Ticks)"))){
+			afktimeobjective.setDisplayName("Top AFKers(Ticks)");
+		}
 		if((survivortimeobjective = tsboard.getObjective("survivortime")) == null){
 			survivortimeobjective = tsboard.registerNewObjective("survivortime", "dummy");
 		}
-		if(survivortimeobjective.getDisplayName() == null){
+		if(!(survivortimeobjective.getDisplayName().equals("Top Survivors(Days)"))){
 			survivortimeobjective.setDisplayName("Top Survivors(Days)");
 		}
 		if((survivorexemptobjective = tsboard.getObjective("survivorexempt")) == null){
