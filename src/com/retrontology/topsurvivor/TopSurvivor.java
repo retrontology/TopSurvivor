@@ -26,7 +26,7 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	public static Objective timesincedeathobjective;	// Ticks
 	public static Objective survivorexemptobjective;	// Flag
 	
-	private TopSurvivor tps;
+	private TopSurvivor tsp;
 	public static Server server;
 	
 	
@@ -39,23 +39,28 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	@Override
 	public void onEnable() {
 		// Store plugin and server
-		tps = this;
-		tps.server = getServer();
+		tsp = this;
+		tsp.server = getServer();
 		
 		// Create Scoreboard
 		makeScoreboard();
 		
 		// Init online players
-		for(Player p: tps.server.getOnlinePlayers()) {
+		for(Player p: tsp.server.getOnlinePlayers()) {
 			// Set player scoreboard
 			p.setScoreboard(tsboard);
+			if(survivorexemptobjective.getScore(p) == null){
+				survivorexemptobjective.getScore(p).setScore(0);
+				survivortimeobjective.getScore(p).setScore(0);
+				afktimeobjective.getScore(p).setScore(0);
+			}
 		}
 		
 		// Register Events
-		tps.server.getPluginManager().registerEvents(new TopSurvivorListener(this), this);
+		tsp.server.getPluginManager().registerEvents(new TopSurvivorListener(this), this);
 		
 		// Register Scheduler to run every 24000 ticks/1 day
-		BukkitScheduler scheduler = tps.server.getScheduler();
+		BukkitScheduler scheduler = tsp.server.getScheduler();
 		scheduler.scheduleSyncRepeatingTask(this, new TopSurvivorTask(this), 0L, 24000L);
 		
 		// Register Commands
@@ -99,6 +104,9 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		}
 		if((survivortimeobjective = tsboard.getObjective("survivortime")) == null){
 			survivortimeobjective = tsboard.registerNewObjective("survivortime", "dummy");
+		}
+		if(survivortimeobjective.getDisplayName() == null){
+			survivortimeobjective.setDisplayName("Top Survivors(Days)");
 		}
 		if((survivorexemptobjective = tsboard.getObjective("survivorexempt")) == null){
 			survivorexemptobjective = tsboard.registerNewObjective("survivorexempt", "dummy");
