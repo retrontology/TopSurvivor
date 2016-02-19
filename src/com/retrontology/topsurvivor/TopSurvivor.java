@@ -7,7 +7,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitScheduler;
+import org.bukkit.scoreboard.DisplaySlot;
+import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.ScoreboardManager;
 
@@ -22,9 +27,14 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	
 	/* Class variables */
 	
-	private ScoreboardManager tsmanager;
-	private Scoreboard tsboard;
-	private IEssentials ess;
+	public static ScoreboardManager tsmanager;
+	public static Scoreboard tsboard;
+	public static Objective afktimeobjective;			// Ticks
+	public static Objective survivortimeobjective;		// Days
+	public static Objective timesincedeathobjective;	// Ticks
+	public static Objective survivorexemptobjective;	// Flag
+	
+	private Plugin plugin;
 	
 	
 	/* Init */
@@ -35,17 +45,24 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	
 	@Override
 	public void onEnable() {
+		// Store plugin
+		plugin = this;
 		
 		// Create Scoreboard
 		makeScoreboard();
 		
 		// Init online players
 		for(Player p: getServer().getOnlinePlayers()) {
-			
+			// Set player scoreboard
+			p.setScoreboard(tsboard);
 		}
 		
 		// Register Events
-		getServer().getPluginManager().registerEvents(this, this);
+		getServer().getPluginManager().registerEvents(new TopSurvivorListener(), this);
+		
+		// Register Scheduler to run every 24000 ticks/1 day
+		BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
+		scheduler.scheduleSyncRepeatingTask(this, new TopSurvivorTask(this), 0, 24000);
 		
 		// Register Commands
 		TopSurvivorCommandExecutor tscommandexec = new TopSurvivorCommandExecutor(this);
@@ -59,6 +76,13 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	@Override
 	public void onDisable() {
 		
+		// Clean up players
+		for(Player p: getServer().getOnlinePlayers()) {
+			
+			// Make sure time is recorded if player is afk when disabled
+			
+		}
+		
 	}
 	
 	
@@ -70,31 +94,27 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	
 	// Make Scoreboard
 	public void makeScoreboard() {
+		
+		// Grab current main scoreboard
 		tsmanager = Bukkit.getScoreboardManager();
 		tsboard = tsmanager.getMainScoreboard();
-	}
-	
-	
-	/* Events */
-	
-	// Player Login
-	@EventHandler
-	public void onLogin(PlayerLoginEvent event) {
-	    
-	}
-	
-	
-	// Player AFK Status Change
-	@EventHandler
-    public void onAFKChange(AfkStatusChangeEvent event) {
-		final User user = ess.getUser(((Player) event).getEntityId());
-		if (user.isAfk()){
-			
-		}
-		else {
-			
-		}
 		
-    }
+		// Check to see if Objectives exist and store them. If not, initiate them
+		if((afktimeobjective = tsboard.getObjective("afktime")) == null){
+			afktimeobjective = tsboard.registerNewObjective("afktime", "dummy");
+		}
+		if((survivortimeobjective = tsboard.getObjective("survivortime")) == null){
+			survivortimeobjective = tsboard.registerNewObjective("survivortime", "dummy");
+		}
+		if((survivorexemptobjective = tsboard.getObjective("survivorexempt")) == null){
+			survivorexemptobjective = tsboard.registerNewObjective("survivorexempt", "dummy");
+		}
+		if((timesincedeathobjective = tsboard.getObjective("timesincedeath")) == null){
+			timesincedeathobjective = tsboard.registerNewObjective("timesincedeath", "stat.timeSinceDeath");
+		}
+				
+		// Set survivor time to sidebar
+		survivortimeobjective.setDisplaySlot(DisplaySlot.SIDEBAR);
+	}
 	
 }
