@@ -4,6 +4,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitScheduler;
@@ -32,18 +34,23 @@ public class TopSurvivorListener implements Listener {
 	public void onLogin(PlayerLoginEvent event) {
 		// Set player scoreboard;
 		final Player player = event.getPlayer();
+		
 		BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
         scheduler.scheduleSyncDelayedTask(plugin, new Runnable() {
             @Override
             public void run() {
-        		player.setScoreboard(TopSurvivor.tsboard);
-        		
-        		// Look to see if player has been initiated yet
-        		if(TopSurvivor.survivorexemptobjective.getScore(player).getScore() == 0){
-        			// Init player scores
-        			TopSurvivor.survivorexemptobjective.getScore(player).setScore(1);
-        			TopSurvivor.survivortimeobjective.getScore(player).setScore(0);
-        			TopSurvivor.afktimeobjective.getScore(player).setScore(0);
+            	// Make sure player is actually logged on
+            	if(player.isOnline()){
+            		player.setScoreboard(TopSurvivor.tsboard);
+            		
+            		// Look to see if player has been initiated yet
+            		if(TopSurvivor.survivorexemptobjective.getScore(player).getScore() == 0){
+            			// Init player scores
+            			TopSurvivor.survivorexemptobjective.getScore(player).setScore(1);
+            			TopSurvivor.survivortimeobjective.getScore(player).setScore(0);
+            			TopSurvivor.afktimeobjective.getScore(player).setScore(0);
+            			TopSurvivor.totalafktimeobjective.getScore(player).setScore(0);
+            		}
         		}
             }
         }, 10L);
@@ -54,25 +61,39 @@ public class TopSurvivorListener implements Listener {
 	@EventHandler
 	public void onQuit(PlayerQuitEvent event) {
 		// Log AFK time if player is still AFK when disconnecting
-		
+		TopSurvivor.tshashmap.onLeave(event);
 	}
 	
 	// Player Death
-	
-		// Run final check
+	@EventHandler
+	public void onDeath(PlayerDeathEvent event){
+		Player player = event.getEntity();
+		// Finalize data in HashMap and clear it
+		TopSurvivor.tshashmap.onDeath(player);
+		
+		// Mark final time
+		if(TopSurvivor.survivorexemptobjective.getScore(player).getScore() == 1){
+			Score afktime = TopSurvivor.afktimeobjective.getScore(player);
+			Score timesincedeath = TopSurvivor.timesincedeathobjective.getScore(player);
+			Score survivortime = TopSurvivor.survivortimeobjective.getScore(player);
+			int current = (int)Math.floor((timesincedeath.getScore() - afktime.getScore())/24000);
+			if(survivortime.getScore() < current){
+				survivortime.setScore(current);
+			}
+		}
+		// Add afktime to totalafktime
+		TopSurvivor.totalafktimeobjective.getScore(player).setScore(TopSurvivor.totalafktimeobjective.getScore(player).getScore() + TopSurvivor.afktimeobjective.getScore(player).getScore());
+		// Reset Objectives
+		TopSurvivor.afktimeobjective.getScore(player).setScore(0);
+	}
 	
 	// Player AFK Status Change
 	@EventHandler
     public void onAFKChange(AfkStatusChangeEvent event) {
-		
-		IUser user = event.getAffected(); 
-		if (user.isAfk()){
-			
+		// Make sure player is online
+		if(TopSurvivor.server.getPlayer(event.getAffected().getName()).isOnline()){
+			TopSurvivor.tshashmap.onChangeEssentialsAfk(event);
 		}
-		else {
-			
-		}
-		
     }
 	
 	// Update Time Survived Objective
@@ -90,6 +111,6 @@ public class TopSurvivorListener implements Listener {
 				}
 			}
 		}
-		TopSurvivor.server.getLogger().info("Top Survivors list updated");
+		TopSurvivor.server.getLogger().info("[Top Survivor] Top Survivors list updated");
 	}
 }

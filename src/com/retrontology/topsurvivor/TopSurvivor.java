@@ -1,5 +1,7 @@
 package com.retrontology.topsurvivor;
 
+import java.util.HashMap;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.entity.Player;
@@ -19,14 +21,20 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	
 	/* Class variables */
 	
+	// Scoreboard
 	public static ScoreboardManager tsmanager;
 	public static Scoreboard tsboard;
 	public static Objective afktimeobjective;			// Ticks
 	public static Objective survivortimeobjective;		// Days
 	public static Objective timesincedeathobjective;	// Ticks
 	public static Objective survivorexemptobjective;	// Flag
+	public static Objective totalafktimeobjective;		// Ticks
 	
+	// Plugin/Server
 	public static Server server;
+	
+	// HashMaps
+	public static TopSurvivorHashMap tshashmap;
 	
 	
 	/* Init */
@@ -40,6 +48,9 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		// Store plugin and server
 		TopSurvivor.server = getServer();
 		
+		// Init Hashmaps
+		tshashmap = new TopSurvivorHashMap(this);
+		
 		// Create Scoreboard
 		makeScoreboard();
 		
@@ -47,10 +58,11 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		for(Player p: TopSurvivor.server.getOnlinePlayers()) {
 			// Set player scoreboard
 			p.setScoreboard(tsboard);
-			if(survivorexemptobjective.getScore(p) == null){
+			if(survivorexemptobjective.getScore(p).getScore() == 0){
 				survivorexemptobjective.getScore(p).setScore(0);
 				survivortimeobjective.getScore(p).setScore(0);
 				afktimeobjective.getScore(p).setScore(0);
+				totalafktimeobjective.getScore(p).setScore(0);
 			}
 		}
 		
@@ -95,8 +107,11 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		if((afktimeobjective = tsboard.getObjective("afktime")) == null){
 			afktimeobjective = tsboard.registerNewObjective("afktime", "dummy");
 		}
-		if(!(afktimeobjective.getDisplayName().equals("Top AFKers(Ticks)"))){
-			afktimeobjective.setDisplayName("Top AFKers(Ticks)");
+		if((totalafktimeobjective = tsboard.getObjective("totalafktime")) == null){
+			totalafktimeobjective = tsboard.registerNewObjective("totalafktime", "dummy");
+		}
+		if(!(totalafktimeobjective.getDisplayName().equals("Top AFKers(Ticks)"))){
+			totalafktimeobjective.setDisplayName("Top AFKers(Ticks)");
 		}
 		if((survivortimeobjective = tsboard.getObjective("survivortime")) == null){
 			survivortimeobjective = tsboard.registerNewObjective("survivortime", "dummy");
@@ -118,12 +133,15 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	// Reset Scoreboard
 	public void resetScoreboard() {
 		
-		
+		// Add final afktime to totalafktime
 	}
 	
 	// View Scoreboard
 	public void viewScoreboard(Player player) {
 		
 	}
+	
+	// Essentials integration
+	
 	
 }
