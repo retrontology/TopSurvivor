@@ -61,7 +61,17 @@ public class TopSurvivorListener implements Listener {
 	@EventHandler
 	public void onQuit(PlayerQuitEvent event) {
 		// Log AFK time if player is still AFK when disconnecting
+		Player player = event.getPlayer();
 		TopSurvivor.tshashmap.onLeave(event);
+		if(TopSurvivor.survivorexemptobjective.getScore(player).getScore() == 1){
+			Score afktime = TopSurvivor.afktimeobjective.getScore(player);
+			Score timesincedeath = TopSurvivor.timesincedeathobjective.getScore(player);
+			Score survivortime = TopSurvivor.survivortimeobjective.getScore(player);
+			int current = (int)Math.floor((timesincedeath.getScore() - afktime.getScore())/24000);
+			if(survivortime.getScore() < current){
+				survivortime.setScore(current);
+			}
+		}
 	}
 	
 	// Player Death
@@ -96,7 +106,7 @@ public class TopSurvivorListener implements Listener {
 		}
     }
 	
-	// Update Time Survived Objective
+	// Update Time Survived Objective for all online players
 	@EventHandler
     public void updateTSTime(TopSurvivorUpdate event) {
 		for(Player p: TopSurvivor.server.getOnlinePlayers()) {

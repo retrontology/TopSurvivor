@@ -71,6 +71,7 @@ public class TopSurvivorHashMap {
 		
 	}
 	
+	// Trigger on 
 	public void onDeath(Player player){
 		// Clean Essentials
 		if(essentialsafkmap.get(player.getName()) != null){

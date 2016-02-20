@@ -30,10 +30,9 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	public static Objective survivorexemptobjective;	// Flag
 	public static Objective totalafktimeobjective;		// Ticks
 	
-	// Plugin/Server
+	// Plugins/Server
 	public static Server server;
-	
-	// HashMaps
+	private TopSurvivorUpdate tsupdate = new TopSurvivorUpdate();
 	public static TopSurvivorHashMap tshashmap;
 	
 	
@@ -86,11 +85,10 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		
 		// Clean up players
 		for(Player p: TopSurvivor.server.getOnlinePlayers()) {
-			
-			// Make sure time is recorded if player is afk when disabled
-			
+			tshashmap.onDeath(p);
 		}
-		
+		// Update all online player before going down
+		Bukkit.getPluginManager().callEvent(tsupdate);
 	}
 	
 	
@@ -140,8 +138,5 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	public void viewScoreboard(Player player) {
 		
 	}
-	
-	// Essentials integration
-	
 	
 }
