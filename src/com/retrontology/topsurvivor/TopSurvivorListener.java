@@ -4,7 +4,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -14,6 +13,8 @@ import org.bukkit.scoreboard.Score;
 import com.earth2me.essentials.IUser;
 
 import net.ess3.api.events.AfkStatusChangeEvent;
+import me.edge209.afkTerminator.AfkTerminator;
+import me.edge209.afkTerminator.AfkTerminatorAPI;
 
 public class TopSurvivorListener implements Listener {
 	
@@ -67,7 +68,7 @@ public class TopSurvivorListener implements Listener {
 			Score afktime = TopSurvivor.afktimeobjective.getScore(player);
 			Score timesincedeath = TopSurvivor.timesincedeathobjective.getScore(player);
 			Score survivortime = TopSurvivor.survivortimeobjective.getScore(player);
-			int current = (int)Math.floor((timesincedeath.getScore() - afktime.getScore())/24000);
+			int current = (int)Math.floor((timesincedeath.getScore() - afktime.getScore() - TopSurvivor.afktpenaltyobjective.getScore(player).getScore())/24000);
 			if(survivortime.getScore() < current){
 				survivortime.setScore(current);
 			}
@@ -86,7 +87,7 @@ public class TopSurvivorListener implements Listener {
 			Score afktime = TopSurvivor.afktimeobjective.getScore(player);
 			Score timesincedeath = TopSurvivor.timesincedeathobjective.getScore(player);
 			Score survivortime = TopSurvivor.survivortimeobjective.getScore(player);
-			int current = (int)Math.floor((timesincedeath.getScore() - afktime.getScore())/24000);
+			int current = (int)Math.floor((timesincedeath.getScore() - afktime.getScore() - TopSurvivor.afktpenaltyobjective.getScore(player).getScore())/24000);
 			if(survivortime.getScore() < current){
 				survivortime.setScore(current);
 			}
@@ -115,7 +116,7 @@ public class TopSurvivorListener implements Listener {
 				Score afktime = TopSurvivor.afktimeobjective.getScore(p);
 				Score timesincedeath = TopSurvivor.timesincedeathobjective.getScore(p);
 				Score survivortime = TopSurvivor.survivortimeobjective.getScore(p);
-				int current = (int)Math.floor((timesincedeath.getScore() - afktime.getScore())/24000);
+				int current = (int)Math.floor((timesincedeath.getScore() - afktime.getScore() - TopSurvivor.afktpenaltyobjective.getScore(p).getScore())/24000);
 				if(survivortime.getScore() < current){
 					survivortime.setScore(current);
 				}
@@ -123,4 +124,13 @@ public class TopSurvivorListener implements Listener {
 		}
 		TopSurvivor.server.getLogger().info("[Top Survivor] Top Survivors list updated");
 	}
+	
+	// Event to poll for AFKTerminator Integration
+	@EventHandler
+	public void updateAFKTTime(TopSurvivorAFKTUpdate event){
+		for(Player p: TopSurvivor.server.getOnlinePlayers()) {
+			TopSurvivor.tshashmap.onAFKTerminator(p);
+		}
+	}
+	
 }

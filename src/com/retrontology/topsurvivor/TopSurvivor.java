@@ -1,20 +1,15 @@
 package com.retrontology.topsurvivor;
 
-import java.util.HashMap;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.ScoreboardManager;
-
-import me.edge209.afkTerminator.AfkTerminatorAPI;
 
 
 public class TopSurvivor extends JavaPlugin implements Listener {
@@ -25,6 +20,7 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	public static ScoreboardManager tsmanager;
 	public static Scoreboard tsboard;
 	public static Objective afktimeobjective;			// Ticks
+	public static Objective afktpenaltyobjective;		// Ticks
 	public static Objective survivortimeobjective;		// Days
 	public static Objective timesincedeathobjective;	// Ticks
 	public static Objective survivorexemptobjective;	// Flag
@@ -32,9 +28,10 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	
 	// Plugins/Server
 	public static Server server;
-	private TopSurvivorUpdate tsupdate = new TopSurvivorUpdate();
 	public static TopSurvivorHashMap tshashmap;
 	
+	// Events
+	private TopSurvivorUpdate tsupdate = new TopSurvivorUpdate();
 	
 	/* Init */
 	
@@ -62,15 +59,18 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 				survivortimeobjective.getScore(p).setScore(0);
 				afktimeobjective.getScore(p).setScore(0);
 				totalafktimeobjective.getScore(p).setScore(0);
+				afktpenaltyobjective.getScore(p).setScore(0);
 			}
 		}
 		
 		// Register Events
 		TopSurvivor.server.getPluginManager().registerEvents(new TopSurvivorListener(this), this);
 		
-		// Register Scheduler to run every 24000 ticks/1 day
+		// Register Update Scheduler to run every 24000 ticks/1 day
 		BukkitScheduler scheduler = TopSurvivor.server.getScheduler();
 		scheduler.scheduleSyncRepeatingTask(this, new TopSurvivorTask(this), 0L, 24000L);
+		// Register AFKTerminator Scheduler to run every 1200 ticks/1 minute
+		scheduler.scheduleSyncRepeatingTask(this, new TopSurvivorAFKTUpdateTask(this), 0L, 1200L);
 		
 		// Register Commands !NEED TO FIX!
 		TopSurvivorCommandExecutor tscommandexec = new TopSurvivorCommandExecutor(this);
@@ -122,6 +122,9 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		}
 		if((timesincedeathobjective = tsboard.getObjective("timesincedeath")) == null){
 			timesincedeathobjective = tsboard.registerNewObjective("timesincedeath", "stat.timeSinceDeath");
+		}
+		if((afktpenaltyobjective = tsboard.getObjective("afktpenalty")) == null){
+			afktpenaltyobjective = tsboard.registerNewObjective("afktpenalty", "dummy");
 		}
 				
 		// Set survivor time to sidebar
