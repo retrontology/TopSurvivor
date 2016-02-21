@@ -17,7 +17,7 @@ public class TopSurvivorHashMap {
 	/* Class Variables */
 	
 	private TopSurvivor plugin;
-	private int aftpenalty;
+	private int afktpenalty;
 	
 	// HashMaps
 	public static HashMap<String, Integer> timestampmap = new HashMap<String, Integer>();
@@ -29,7 +29,7 @@ public class TopSurvivorHashMap {
 	public TopSurvivorHashMap(TopSurvivor plugin){
 		this.plugin = plugin;
 		// Initialize AFKTerminator Penalty
-		aftpenalty = 2400;
+		afktpenalty = 2400;
 	}
 	
 	/* Interfaces */
@@ -68,6 +68,7 @@ public class TopSurvivorHashMap {
 		}else if(afkttimestampmap.get(p.getName()) != null){
 			int time = TopSurvivor.timesincedeathobjective.getScore(p).getScore() - afkttimestampmap.remove(p.getName());
 			TopSurvivor.afktimeobjective.getScore(p.getName()).setScore(TopSurvivor.afktimeobjective.getScore(p.getName()).getScore() + time);
+			TopSurvivor.afktpenaltyobjective.getScore(p).setScore(TopSurvivor.afktpenaltyobjective.getScore(p).getScore() + afktpenalty);
 		}
 	}
 	
@@ -90,6 +91,7 @@ public class TopSurvivorHashMap {
 		if(afkttimestampmap.get(player.getName()) != null){
 			int time = TopSurvivor.timesincedeathobjective.getScore(player).getScore() - afkttimestampmap.remove(player.getName());
 			TopSurvivor.afktimeobjective.getScore(player.getName()).setScore(TopSurvivor.afktimeobjective.getScore(player.getName()).getScore() + time);
+			TopSurvivor.afktpenaltyobjective.getScore(player).setScore(TopSurvivor.afktpenaltyobjective.getScore(player).getScore() + afktpenalty);
 		}
 	}
 	
@@ -109,6 +111,7 @@ public class TopSurvivorHashMap {
 		if(afkttimestampmap.get(player.getName()) != null){
 			int time = TopSurvivor.timesincedeathobjective.getScore(player).getScore() - afkttimestampmap.remove(player.getName());
 			TopSurvivor.afktimeobjective.getScore(player.getName()).setScore(TopSurvivor.afktimeobjective.getScore(player.getName()).getScore() + time);
+			TopSurvivor.afktpenaltyobjective.getScore(player).setScore(TopSurvivor.afktpenaltyobjective.getScore(player).getScore() + afktpenalty);
 		}
 	}
 }
