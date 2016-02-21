@@ -36,6 +36,7 @@ public class TopSurvivorListener implements Listener {
 		// Set player scoreboard;
 		final Player player = event.getPlayer();
 		
+		// Needs to wait a bit for player to register, otherwise it will thrown an exception
 		BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
         scheduler.scheduleSyncDelayedTask(plugin, new Runnable() {
             @Override
@@ -74,9 +75,9 @@ public class TopSurvivorListener implements Listener {
 			if((timesincedeath.getScore() - afktime.getScore()) > TopSurvivor.toptickobjective.getScore(player).getScore()){
 				TopSurvivor.toptickobjective.getScore(player).setScore(timesincedeath.getScore());
 				TopSurvivor.topafktimeobjective.getScore(player).setScore(afktime.getScore());
-				int currentdays = (int)Math.floor((timesincedeath.getScore() - afktime.getScore() - TopSurvivor.afktpenaltyobjective.getScore(player).getScore())/24000);
-				TopSurvivor.survivortimeobjective.getScore(player).setScore(currentdays);
 			}
+			int currentdays = (int)Math.floor((TopSurvivor.toptickobjective.getScore(player).getScore() - TopSurvivor.topafktimeobjective.getScore(player).getScore() - TopSurvivor.afktpenaltyobjective.getScore(player).getScore())/24000);
+			TopSurvivor.survivortimeobjective.getScore(player).setScore(currentdays);
 		}
 	}
 	
@@ -95,9 +96,9 @@ public class TopSurvivorListener implements Listener {
 			if((timesincedeath.getScore() - afktime.getScore()) > TopSurvivor.toptickobjective.getScore(player).getScore()){
 				TopSurvivor.toptickobjective.getScore(player).setScore(timesincedeath.getScore());
 				TopSurvivor.topafktimeobjective.getScore(player).setScore(afktime.getScore());
-				int currentdays = (int)Math.floor((timesincedeath.getScore() - afktime.getScore() - TopSurvivor.afktpenaltyobjective.getScore(player).getScore())/24000);
-				TopSurvivor.survivortimeobjective.getScore(player).setScore(currentdays);
 			}
+			int currentdays = (int)Math.floor((TopSurvivor.toptickobjective.getScore(player).getScore() - TopSurvivor.topafktimeobjective.getScore(player).getScore() - TopSurvivor.afktpenaltyobjective.getScore(player).getScore())/24000);
+			TopSurvivor.survivortimeobjective.getScore(player).setScore(currentdays);
 		}
 		// Add afktime to totalafktime
 		TopSurvivor.totalafktimeobjective.getScore(player).setScore(TopSurvivor.totalafktimeobjective.getScore(player).getScore() + TopSurvivor.afktimeobjective.getScore(player).getScore());
@@ -122,13 +123,12 @@ public class TopSurvivorListener implements Listener {
 			if(exempt.getScore() == 1){
 				Score afktime = TopSurvivor.afktimeobjective.getScore(p);
 				Score timesincedeath = TopSurvivor.timesincedeathobjective.getScore(p);
-				Score survivortime = TopSurvivor.survivortimeobjective.getScore(p);
 				if((timesincedeath.getScore() - afktime.getScore()) > TopSurvivor.toptickobjective.getScore(p).getScore()){
 					TopSurvivor.toptickobjective.getScore(p).setScore(timesincedeath.getScore());
 					TopSurvivor.topafktimeobjective.getScore(p).setScore(afktime.getScore());
-					int currentdays = (int)Math.floor((timesincedeath.getScore() - afktime.getScore() - TopSurvivor.afktpenaltyobjective.getScore(p).getScore())/24000);
-					TopSurvivor.survivortimeobjective.getScore(p).setScore(currentdays);
 				}
+				int currentdays = (int)Math.floor((TopSurvivor.toptickobjective.getScore(p).getScore() - TopSurvivor.topafktimeobjective.getScore(p).getScore() - TopSurvivor.afktpenaltyobjective.getScore(p).getScore())/24000);
+				TopSurvivor.survivortimeobjective.getScore(p).setScore(currentdays);
 			}
 		}
 		TopSurvivor.server.getLogger().info("[Top Survivor] Top Survivors list updated");
