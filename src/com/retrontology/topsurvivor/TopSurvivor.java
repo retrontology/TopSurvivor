@@ -25,6 +25,8 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	public static Objective timesincedeathobjective;	// Ticks
 	public static Objective survivorexemptobjective;	// Flag
 	public static Objective totalafktimeobjective;		// Ticks
+	public static Objective topafktimeobjective;		// Ticks
+	public static Objective toptickobjective;			// Ticks
 	
 	// Plugins/Server
 	public static Server server;
@@ -60,6 +62,8 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 				afktimeobjective.getScore(p).setScore(0);
 				totalafktimeobjective.getScore(p).setScore(0);
 				afktpenaltyobjective.getScore(p).setScore(0);
+				topafktimeobjective.getScore(p).setScore(0);
+				toptickobjective.getScore(p).setScore(0);
 			}
 		}
 		
@@ -126,6 +130,12 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		if((afktpenaltyobjective = tsboard.getObjective("afktpenalty")) == null){
 			afktpenaltyobjective = tsboard.registerNewObjective("afktpenalty", "dummy");
 		}
+		if((topafktimeobjective = tsboard.getObjective("topafktime")) == null){
+			topafktimeobjective = tsboard.registerNewObjective("topafktime", "dummy");
+		}
+		if((toptickobjective = tsboard.getObjective("toptick")) == null){
+			toptickobjective = tsboard.registerNewObjective("toptick", "dummy");
+		}
 				
 		// Set survivor time to sidebar
 		survivortimeobjective.setDisplaySlot(DisplaySlot.SIDEBAR);
@@ -133,8 +143,8 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	
 	// Reset Scoreboard
 	public void resetScoreboard() {
-		
 		// Add final afktime to totalafktime
+		
 	}
 	
 	// View Scoreboard
