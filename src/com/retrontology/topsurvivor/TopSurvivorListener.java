@@ -72,7 +72,7 @@ public class TopSurvivorListener implements Listener {
 		if(TopSurvivor.survivorexemptobjective.getScore(player).getScore() == 1){
 			Score afktime = TopSurvivor.afktimeobjective.getScore(player);
 			Score timesincedeath = TopSurvivor.timesincedeathobjective.getScore(player);
-			if((timesincedeath.getScore() - afktime.getScore()) > TopSurvivor.toptickobjective.getScore(player).getScore()){
+			if((timesincedeath.getScore() - afktime.getScore()) > (TopSurvivor.toptickobjective.getScore(player).getScore() - TopSurvivor.topafktimeobjective.getScore(player).getScore())){
 				TopSurvivor.toptickobjective.getScore(player).setScore(timesincedeath.getScore());
 				TopSurvivor.topafktimeobjective.getScore(player).setScore(afktime.getScore());
 			}
@@ -93,7 +93,7 @@ public class TopSurvivorListener implements Listener {
 			Score afktime = TopSurvivor.afktimeobjective.getScore(player);
 			Score timesincedeath = TopSurvivor.timesincedeathobjective.getScore(player);
 			Score survivortime = TopSurvivor.survivortimeobjective.getScore(player);
-			if((timesincedeath.getScore() - afktime.getScore()) > TopSurvivor.toptickobjective.getScore(player).getScore()){
+			if((timesincedeath.getScore() - afktime.getScore()) > (TopSurvivor.toptickobjective.getScore(player).getScore() - TopSurvivor.topafktimeobjective.getScore(player).getScore())){
 				TopSurvivor.toptickobjective.getScore(player).setScore(timesincedeath.getScore());
 				TopSurvivor.topafktimeobjective.getScore(player).setScore(afktime.getScore());
 			}
@@ -123,7 +123,7 @@ public class TopSurvivorListener implements Listener {
 			if(exempt.getScore() == 1){
 				Score afktime = TopSurvivor.afktimeobjective.getScore(p);
 				Score timesincedeath = TopSurvivor.timesincedeathobjective.getScore(p);
-				if((timesincedeath.getScore() - afktime.getScore()) > TopSurvivor.toptickobjective.getScore(p).getScore()){
+				if((timesincedeath.getScore() - afktime.getScore()) > (TopSurvivor.toptickobjective.getScore(p).getScore() - TopSurvivor.topafktimeobjective.getScore(p).getScore())){
 					TopSurvivor.toptickobjective.getScore(p).setScore(timesincedeath.getScore());
 					TopSurvivor.topafktimeobjective.getScore(p).setScore(afktime.getScore());
 				}
