@@ -174,7 +174,7 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 			if(exempt.getScore() == 1){
 				Score afktime = afktimeobjective.getScore(p);
 				Score timesincedeath = timesincedeathobjective.getScore(p);
-				if((timesincedeath.getScore() - afktime.getScore()) > toptickobjective.getScore(p).getScore()){
+				if((timesincedeath.getScore() - afktime.getScore()) > (toptickobjective.getScore(p).getScore() - topafktimeobjective.getScore(p).getScore())){
 					toptickobjective.getScore(p).setScore(timesincedeath.getScore());
 					topafktimeobjective.getScore(p).setScore(afktime.getScore());
 				}
@@ -184,13 +184,18 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		}
 		
 		// Find Winners
-		List<OfflinePlayer> topsurvivors = new ArrayList<OfflinePlayer>(tsboard.getPlayers());
+		Set<OfflinePlayer> topsurvivorset = tsboard.getPlayers();
+		for(OfflinePlayer player : topsurvivorset){
+			if(survivorexemptobjective.getScore(player).getScore() != 1){ topsurvivorset.remove(player); }
+		}
+		List<OfflinePlayer> topsurvivors = new ArrayList<OfflinePlayer>(topsurvivorset);
 		Collections.sort(topsurvivors, new TopSurvivorComparator());
 		for(OfflinePlayer player : topsurvivors){ 
 			server.getLogger().info(player.getName() + ": " + (toptickobjective.getScore(player).getScore() - topafktimeobjective.getScore(player).getScore() - afktpenaltyobjective.getScore(player).getScore()));
 		}
 		
 		// Distribute Prizes
+		
 		
 		// Reset Objectives
 		for(OfflinePlayer player : tsboard.getPlayers())
