@@ -25,7 +25,6 @@ public class TopSurvivorCommandExecutor implements CommandExecutor {
 			// View
 			if((args.length == 0 || (args.length == 1 && args[0].equalsIgnoreCase("view"))) && (player.hasPermission("topsurvivor.citizen")))
 			{
-				player.sendMessage(ChatColor.AQUA + "View");
 				plugin.viewScoreboard(player);
 				return true;
 			}

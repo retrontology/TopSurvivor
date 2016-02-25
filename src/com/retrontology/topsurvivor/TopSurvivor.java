@@ -7,6 +7,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Server;
 import org.bukkit.entity.Player;
@@ -163,7 +164,6 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	}
 	
 	// Reset Scoreboard
-	@SuppressWarnings("deprecation")
 	public void resetScoreboard() {
 		// Finalize online player
 		for(Player p: server.getOnlinePlayers()) {
@@ -184,12 +184,7 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		}
 		
 		// Find Winners
-		Set<OfflinePlayer> topsurvivorset = tsboard.getPlayers();
-		for(OfflinePlayer player : topsurvivorset){
-			if(survivorexemptobjective.getScore(player).getScore() != 1){ topsurvivorset.remove(player); }
-		}
-		List<OfflinePlayer> topsurvivors = new ArrayList<OfflinePlayer>(topsurvivorset);
-		Collections.sort(topsurvivors, new TopSurvivorComparator());
+		List<OfflinePlayer> topsurvivors = getSortedList();
 		for(OfflinePlayer player : topsurvivors){ 
 			server.getLogger().info(player.getName() + ": " + (toptickobjective.getScore(player).getScore() - topafktimeobjective.getScore(player).getScore() - afktpenaltyobjective.getScore(player).getScore()));
 		}
@@ -213,6 +208,18 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	
 	// View Scoreboard
 	public void viewScoreboard(Player player) {
-		
+		List<OfflinePlayer> topsurvivors = getSortedList();
+		player.sendMessage(ChatColor.AQUA + "View");
+	}
+	
+	// Get Sorted List of Players
+	public List<OfflinePlayer> getSortedList(){
+		Set<OfflinePlayer> topsurvivorset = tsboard.getPlayers();
+		for(OfflinePlayer player : topsurvivorset){
+			if(survivorexemptobjective.getScore(player).getScore() != 1){ topsurvivorset.remove(player); }
+		}
+		List<OfflinePlayer> topsurvivors = new ArrayList<OfflinePlayer>(topsurvivorset);
+		Collections.sort(topsurvivors, new TopSurvivorComparator());
+		return topsurvivors;
 	}
 }
