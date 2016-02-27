@@ -11,6 +11,7 @@ import org.bukkit.entity.Player;
 public class TopSurvivorPlayer {
 	
 	/* Class Variables */
+	private File file;
 	private FileConfiguration config = null;
 	private OfflinePlayer player;
 	private TopSurvivor plugin;
@@ -21,7 +22,7 @@ public class TopSurvivorPlayer {
 		this.player = plugin.server.getOfflinePlayer(playername);
 		this.plugin = plugin;
 		// Load player file into memory or create and init it if there isn't one
-		File file = new File("plugins"+File.separator+"PluginName"+File.separator+"Players"+File.separator+player.getName()+".yml");
+		file = new File("plugins"+File.separator+"PluginName"+File.separator+"Players"+File.separator+player.getName()+".yml");
 		if(!file.exists()){
 		    try {
 		        file.createNewFile();
@@ -33,11 +34,12 @@ public class TopSurvivorPlayer {
 		 
 		    config = YamlConfiguration.loadConfiguration(file);
 		    config.set("Player.Name", player.getName());
-		    config.set("Current.AfkTime", 0);
-		    config.set("Current.AfkTPenalty", 0);
-		    config.set("Flag.Exempt", false);
-		    config.set("Top.Tick", 0);
-		    config.set("Top.AfkTime", 0);
+		    config.set("Current.AfkTime", 0);			// Ticks
+		    config.set("Current.AfkTPenalty", 0);		// Ticks
+		    config.set("Flag.Exempt", false);			// Flag
+		    config.set("Flag.New", true);				// Flag
+		    config.set("Top.Tick", 0);					// Ticks
+		    config.set("Top.AfkTime", 0);				// Ticks
 		 
 		    try {
 		        config.save(file);
@@ -70,25 +72,39 @@ public class TopSurvivorPlayer {
 		return config.getInt("Top.AfkTime");
 	}
 	
+	public boolean getFlagNew(){
+		return config.getBoolean("Flag.New");
+	}
+	
 	// Set player info
-	public void setCurrentAfkTime(int i){
+	public int setCurrentAfkTime(int i){
 		config.set("Current.AfkTime", i);
+		return i;
 	}
 	
-	public void setCurrentAfkTPenalty(int i){
+	public int setCurrentAfkTPenalty(int i){
 		config.set("Current.AfkTPenalty", i);
+		return i;
 	}
 	
-	public void setFlagExempt(boolean i){
+	public boolean setFlagExempt(boolean i){
 		config.set("Flag.Exempt", i);
+		return i;
 	}
 	
-	public void setTopTick(int i){
+	public boolean setFlagNew(boolean i){
+		config.set("Flag.New", i);
+		return i;
+	}
+	
+	public int setTopTick(int i){
 		config.set("Top.Tick", i);
+		return i;
 	}
 	
-	public void setTopAfkTime(int i){
+	public int setTopAfkTime(int i){
 		config.set("Top.AfkTime", i);
+		return i;
 	}
 	
 	// Reset player stats
@@ -96,8 +112,18 @@ public class TopSurvivorPlayer {
 		config.set("Current.AfkTime", 0);
 	    config.set("Current.AfkTPenalty", 0);
 	    config.set("Flag.Exempt", false);
+	    config.set("Flag.New", false);
 	    config.set("Top.Tick", 0);
 	    config.set("Top.AfkTime", 0);
+	}
+	
+	// Save player to disk
+	public void save(){
+		try {
+	        config.save(file);
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	    }
 	}
 	
 }

@@ -7,6 +7,11 @@ import org.bukkit.OfflinePlayer;
 public class TopSurvivorComparator  implements Comparator<OfflinePlayer>{
 	@Override
     public int compare(OfflinePlayer p1, OfflinePlayer p2) {
-        return (TopSurvivor.toptickobjective.getScore(p2).getScore() - TopSurvivor.topafktimeobjective.getScore(p2).getScore() - TopSurvivor.afktpenaltyobjective.getScore(p2).getScore()) - (TopSurvivor.toptickobjective.getScore(p1).getScore() - TopSurvivor.topafktimeobjective.getScore(p1).getScore() - TopSurvivor.afktpenaltyobjective.getScore(p1).getScore());
+        return (TopSurvivor.tshashmap.getTopSurvivorPlayer(p2).getTopTick() 
+        			- TopSurvivor.tshashmap.getTopSurvivorPlayer(p2).getTopAfkTime() 
+        			- TopSurvivor.tshashmap.getTopSurvivorPlayer(p2).getCurrentAfkTPenalty()) 
+        		- (TopSurvivor.tshashmap.getTopSurvivorPlayer(p1).getTopTick() 
+            			- TopSurvivor.tshashmap.getTopSurvivorPlayer(p1).getTopAfkTime() 
+            			- TopSurvivor.tshashmap.getTopSurvivorPlayer(p1).getCurrentAfkTPenalty());
     }
 }

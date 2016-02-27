@@ -42,22 +42,7 @@ public class TopSurvivorListener implements Listener {
             @Override
             public void run() {
             	// Make sure player is actually logged on
-            	if(player.isOnline()){
-            		player.setScoreboard(TopSurvivor.tsboard);
-            		
-            		// Look to see if player has been initiated yet
-            		if(TopSurvivor.survivorexemptobjective.getScore(player).getScore() == 0){
-            			// Init player scores
-            			TopSurvivor.survivorexemptobjective.getScore(player).setScore(1);
-            			TopSurvivor.survivortimeobjective.getScore(player).setScore(0);
-            			TopSurvivor.afktimeobjective.getScore(player).setScore(0);
-            			TopSurvivor.totalafktimeobjective.getScore(player).setScore(0);
-            			TopSurvivor.afktpenaltyobjective.getScore(player).setScore(0);
-            			TopSurvivor.topafktimeobjective.getScore(player).setScore(0);
-            			TopSurvivor.toptickobjective.getScore(player).setScore(0);
-            			TopSurvivor.timesincedeathobjective.getScore(player).setScore(0);
-            		}
-        		}
+            	if(player.isOnline()){ plugin.initPlayer(player); }
             }
         }, 10L);
 		
@@ -68,42 +53,26 @@ public class TopSurvivorListener implements Listener {
 	public void onQuit(PlayerQuitEvent event) {
 		// Log AFK time if player is still AFK when disconnecting
 		Player player = event.getPlayer();
-		TopSurvivor.tshashmap.onLeave(event);
-		if(TopSurvivor.survivorexemptobjective.getScore(player).getScore() == 1){
-			Score afktime = TopSurvivor.afktimeobjective.getScore(player);
-			Score timesincedeath = TopSurvivor.timesincedeathobjective.getScore(player);
-			if((timesincedeath.getScore() - afktime.getScore()) > (TopSurvivor.toptickobjective.getScore(player).getScore() - TopSurvivor.topafktimeobjective.getScore(player).getScore())){
-				TopSurvivor.toptickobjective.getScore(player).setScore(timesincedeath.getScore());
-				TopSurvivor.topafktimeobjective.getScore(player).setScore(afktime.getScore());
-			}
-			int currentdays = (int)Math.floor((TopSurvivor.toptickobjective.getScore(player).getScore() - TopSurvivor.topafktimeobjective.getScore(player).getScore() - TopSurvivor.afktpenaltyobjective.getScore(player).getScore())/24000);
-			TopSurvivor.survivortimeobjective.getScore(player).setScore(currentdays);
-		}
+		// Clean Hashmaps
+		TopSurvivor.tshashmap.onLeave(player);
+		// Refresh Player
+		plugin.refreshPlayer(player);
 	}
 	
 	// Player Death
 	@EventHandler
 	public void onDeath(PlayerDeathEvent event){
 		Player player = event.getEntity();
+		TopSurvivorPlayer tsplayer = plugin.tshashmap.getTopSurvivorPlayer(player);
 		// Finalize data in HashMap and clear it
 		TopSurvivor.tshashmap.onDeath(player);
 		
 		// Mark final time
-		if(TopSurvivor.survivorexemptobjective.getScore(player).getScore() == 1){
-			Score afktime = TopSurvivor.afktimeobjective.getScore(player);
-			Score timesincedeath = TopSurvivor.timesincedeathobjective.getScore(player);
-			Score survivortime = TopSurvivor.survivortimeobjective.getScore(player);
-			if((timesincedeath.getScore() - afktime.getScore()) > (TopSurvivor.toptickobjective.getScore(player).getScore() - TopSurvivor.topafktimeobjective.getScore(player).getScore())){
-				TopSurvivor.toptickobjective.getScore(player).setScore(timesincedeath.getScore());
-				TopSurvivor.topafktimeobjective.getScore(player).setScore(afktime.getScore());
-			}
-			int currentdays = (int)Math.floor((TopSurvivor.toptickobjective.getScore(player).getScore() - TopSurvivor.topafktimeobjective.getScore(player).getScore() - TopSurvivor.afktpenaltyobjective.getScore(player).getScore())/24000);
-			TopSurvivor.survivortimeobjective.getScore(player).setScore(currentdays);
-		}
+		plugin.refreshPlayer(player);
 		// Add afktime to totalafktime
-		TopSurvivor.totalafktimeobjective.getScore(player).setScore(TopSurvivor.totalafktimeobjective.getScore(player).getScore() + TopSurvivor.afktimeobjective.getScore(player).getScore());
+		TopSurvivor.totalafktimeobjective.getScore(player).setScore(TopSurvivor.totalafktimeobjective.getScore(player).getScore() + tsplayer.getCurrentAfkTime());
 		// Reset Objectives
-		TopSurvivor.afktimeobjective.getScore(player).setScore(0);
+		tsplayer.setCurrentAfkTime(0);
 	}
 	
 	// Player AFK Status Change
@@ -118,19 +87,7 @@ public class TopSurvivorListener implements Listener {
 	// Update Time Survived Objective for all online players
 	@EventHandler
     public void updateTSTime(TopSurvivorUpdate event) {
-		for(Player p: TopSurvivor.server.getOnlinePlayers()) {
-			Score exempt = TopSurvivor.survivorexemptobjective.getScore(p);
-			if(exempt.getScore() == 1){
-				Score afktime = TopSurvivor.afktimeobjective.getScore(p);
-				Score timesincedeath = TopSurvivor.timesincedeathobjective.getScore(p);
-				if((timesincedeath.getScore() - afktime.getScore()) > (TopSurvivor.toptickobjective.getScore(p).getScore() - TopSurvivor.topafktimeobjective.getScore(p).getScore())){
-					TopSurvivor.toptickobjective.getScore(p).setScore(timesincedeath.getScore());
-					TopSurvivor.topafktimeobjective.getScore(p).setScore(afktime.getScore());
-				}
-				int currentdays = (int)Math.floor((TopSurvivor.toptickobjective.getScore(p).getScore() - TopSurvivor.topafktimeobjective.getScore(p).getScore() - TopSurvivor.afktpenaltyobjective.getScore(p).getScore())/24000);
-				TopSurvivor.survivortimeobjective.getScore(p).setScore(currentdays);
-			}
-		}
+		for(Player p: TopSurvivor.server.getOnlinePlayers()) { plugin.refreshPlayer(p); }
 		TopSurvivor.server.getLogger().info("[Top Survivor] Top Survivors list updated");
 	}
 	

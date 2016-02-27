@@ -2,6 +2,7 @@ package com.retrontology.topsurvivor;
 
 import java.util.HashMap;
 
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -25,7 +26,7 @@ public class TopSurvivorHashMap {
 	public static HashMap<String, Boolean> essentialsafkmap = new HashMap<String, Boolean>();
 	
 	// Player HashMap
-	public static HashMap<Player, TopSurvivorPlayer> tsplayers = new HashMap<Player, TopSurvivorPlayer>();
+	public static HashMap<String, TopSurvivorPlayer> tsplayers = new HashMap<String, TopSurvivorPlayer>();
 
 	/* Constructor */
 	
@@ -41,6 +42,7 @@ public class TopSurvivorHashMap {
 	public void onChangeEssentialsAfk(AfkStatusChangeEvent event){
 		IUser user = event.getAffected();
 		Player player = TopSurvivor.server.getPlayer(user.getName());
+		TopSurvivorPlayer tsplayer = tsplayers.get(player);
 		// I'm unsure of this logic. Look here if there's a problem with essentials afk time registering
 		if (!user.isAfk()){
 			// Store Timestamp in map
@@ -48,10 +50,9 @@ public class TopSurvivorHashMap {
 			essentialsafkmap.put(user.getName(), true);
 		}else if (essentialsafkmap.get(user.getName()) != null){
 			// Add to AFK Time Objective
-			Score afkscore = TopSurvivor.afktimeobjective.getScore(player);
 			Score timesincedeathscore = TopSurvivor.timesincedeathobjective.getScore(player);
 			int timestamp = timestampmap.get(player.getName());
-			afkscore.setScore(afkscore.getScore() + (timesincedeathscore.getScore() - timestamp));
+			tsplayer.setCurrentAfkTime(tsplayer.getCurrentAfkTime() + (timesincedeathscore.getScore() - timestamp));
 			//TopSurvivor.afktimeobjective.getScore(player).setScore(TopSurvivor.afktimeobjective.getScore(player).getScore() + (TopSurvivor.timesincedeathobjective.getScore(player).getScore() - timestampmap.get(user.getName())));
 			// Clear Hashmaps
 			timestampmap.remove(user.getName());
@@ -60,6 +61,7 @@ public class TopSurvivorHashMap {
 	}
 	
 	public void onAFKTerminator(Player p){
+		TopSurvivorPlayer tsplayer = tsplayers.get(p);
 		// See if they're using an afk machine
 		if(AfkTerminatorAPI.isAFKMachineDetected(p.getName())){
 			// Initialize Player if they're not already detected
@@ -70,51 +72,54 @@ public class TopSurvivorHashMap {
 		// Store AFK Terminator Time
 		}else if(afkttimestampmap.get(p.getName()) != null){
 			int time = TopSurvivor.timesincedeathobjective.getScore(p).getScore() - afkttimestampmap.remove(p.getName());
-			TopSurvivor.afktimeobjective.getScore(p.getName()).setScore(TopSurvivor.afktimeobjective.getScore(p.getName()).getScore() + time);
-			TopSurvivor.afktpenaltyobjective.getScore(p).setScore(TopSurvivor.afktpenaltyobjective.getScore(p).getScore() + afktpenalty);
+			tsplayer.setCurrentAfkTime(tsplayer.getCurrentAfkTime() + time);
+			tsplayer.setCurrentAfkTPenalty(tsplayer.getCurrentAfkTPenalty() + afktpenalty);
 		}
 	}
 	
 	// Triggers on Leave
-	public void onLeave(PlayerQuitEvent event){
-		Player player = event.getPlayer();
+	public void onLeave(Player player){
+		TopSurvivorPlayer tsplayer = tsplayers.get(player);
 		// Clean Essentials
 		if(essentialsafkmap.get(player.getName()) != null){
 			// Add to AFK Time Objective
-			Score afkscore = TopSurvivor.afktimeobjective.getScore(player);
 			Score timesincedeathscore = TopSurvivor.timesincedeathobjective.getScore(player);
 			int timestamp = timestampmap.get(player.getName());
-			afkscore.setScore(afkscore.getScore() + (timesincedeathscore.getScore() - timestamp));
-			//TopSurvivor.afktimeobjective.getScore(player).setScore(TopSurvivor.afktimeobjective.getScore(player).getScore() + (TopSurvivor.timesincedeathobjective.getScore(player).getScore() - timestampmap.get(player.getName())));
-			// Clear HashMaps
+			tsplayer.setCurrentAfkTime(tsplayer.getCurrentAfkTime() + (timesincedeathscore.getScore() - timestamp));
+			//TopSurvivor.afktimeobjective.getScore(player).setScore(TopSurvivor.afktimeobjective.getScore(player).getScore() + (TopSurvivor.timesincedeathobjective.getScore(player).getScore() - timestampmap.get(user.getName())));
+			// Clear Hashmaps
 			timestampmap.remove(player.getName());
 			essentialsafkmap.remove(player.getName());
 		}
 		// Clean AFKTerminator
 		if(afkttimestampmap.get(player.getName()) != null){
 			int time = TopSurvivor.timesincedeathobjective.getScore(player).getScore() - afkttimestampmap.remove(player.getName());
-			TopSurvivor.afktimeobjective.getScore(player.getName()).setScore(TopSurvivor.afktimeobjective.getScore(player.getName()).getScore() + time);
-			TopSurvivor.afktpenaltyobjective.getScore(player).setScore(TopSurvivor.afktpenaltyobjective.getScore(player).getScore() + afktpenalty);
+			tsplayer.setCurrentAfkTime(tsplayer.getCurrentAfkTime() + time);
+			tsplayer.setCurrentAfkTPenalty(tsplayer.getCurrentAfkTPenalty() + afktpenalty);
 		}
+		// Clean and save player
+		removeTopSurvivorPlayer(player);
 	}
 	
-	// Trigger on 
+	// Trigger on Death
 	public void onDeath(Player player){
+		TopSurvivorPlayer tsplayer = tsplayers.get(player);
 		// Clean Essentials
 		if(essentialsafkmap.get(player.getName()) != null){
-			Score afkscore = TopSurvivor.afktimeobjective.getScore(player);
+			// Add to AFK Time Objective
 			Score timesincedeathscore = TopSurvivor.timesincedeathobjective.getScore(player);
 			int timestamp = timestampmap.get(player.getName());
-			afkscore.setScore(afkscore.getScore() + (timesincedeathscore.getScore() - timestamp));
-			// Clear HashMaps
+			tsplayer.setCurrentAfkTime(tsplayer.getCurrentAfkTime() + (timesincedeathscore.getScore() - timestamp));
+			//TopSurvivor.afktimeobjective.getScore(player).setScore(TopSurvivor.afktimeobjective.getScore(player).getScore() + (TopSurvivor.timesincedeathobjective.getScore(player).getScore() - timestampmap.get(user.getName())));
+			// Clear Hashmaps
 			timestampmap.remove(player.getName());
 			essentialsafkmap.remove(player.getName());
 		}
 		// Clean AFKTerminator
 		if(afkttimestampmap.get(player.getName()) != null){
 			int time = TopSurvivor.timesincedeathobjective.getScore(player).getScore() - afkttimestampmap.remove(player.getName());
-			TopSurvivor.afktimeobjective.getScore(player.getName()).setScore(TopSurvivor.afktimeobjective.getScore(player.getName()).getScore() + time);
-			TopSurvivor.afktpenaltyobjective.getScore(player).setScore(TopSurvivor.afktpenaltyobjective.getScore(player).getScore() + afktpenalty);
+			tsplayer.setCurrentAfkTime(tsplayer.getCurrentAfkTime() + time);
+			tsplayer.setCurrentAfkTPenalty(tsplayer.getCurrentAfkTPenalty() + afktpenalty);
 		}
 	}
 	
@@ -123,8 +128,26 @@ public class TopSurvivorHashMap {
 	// Get TopSurvivorPlayer
 	public TopSurvivorPlayer getTopSurvivorPlayer(Player player){
 		TopSurvivorPlayer tsp = null;
+		if(tsplayers.get(player.getName()) == null){
+			tsp = tsplayers.put(player.getName(), new TopSurvivorPlayer(player.getName(), plugin));
+		}else{
+			tsp = tsplayers.get(player);
+		}
+		return tsp;
+	}
+	public TopSurvivorPlayer getTopSurvivorPlayer(OfflinePlayer player){
+		TopSurvivorPlayer tsp = null;
+		if(tsplayers.get(player.getName()) == null){
+			tsp = tsplayers.put(player.getName(), new TopSurvivorPlayer(player.getName(), plugin));
+		}else{
+			tsp = tsplayers.get(player);
+		}
+		return tsp;
+	}
+	public TopSurvivorPlayer getTopSurvivorPlayer(String player){
+		TopSurvivorPlayer tsp = null;
 		if(tsplayers.get(player) == null){
-			tsp = tsplayers.put(player, new TopSurvivorPlayer(player.getName(), plugin));
+			tsp = tsplayers.put(player, new TopSurvivorPlayer(player, plugin));
 		}else{
 			tsp = tsplayers.get(player);
 		}
@@ -133,8 +156,8 @@ public class TopSurvivorHashMap {
 	
 	// Remove TopSurvivorPlayer
 	public TopSurvivorPlayer removeTopSurvivorPlayer(Player player){
+		tsplayers.get(player).save();
 		return tsplayers.remove(player.getName());
 	}
-	
-	// Get TopSurvivor Player
+
 }

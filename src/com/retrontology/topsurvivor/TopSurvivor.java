@@ -31,9 +31,7 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	public static Scoreboard tsboard;
 	public static Objective survivortimeobjective;		// Days
 	public static Objective timesincedeathobjective;	// Ticks
-	public static Objective totalafktimeobjective;		// Ticks
-	public static Objective topafktimeobjective;		// Ticks
-	public static Objective toptickobjective;			// Ticks
+	public static Objective totalafktimeobjective;	// Ticks
 	
 	// Plugins/Server
 	public static Server server;
@@ -42,8 +40,7 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	// Events
 	private TopSurvivorUpdate tsupdate = new TopSurvivorUpdate();
 	
-	// Player HashMap
-	public static HashMap<Player, TopSurvivorPlayer> tsplayers;
+
 	
 	/* Init */
 	
@@ -63,19 +60,7 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		makeScoreboard();
 		
 		// Init online players
-		for(Player p: server.getOnlinePlayers()) {
-			// Set player scoreboard
-			p.setScoreboard(tsboard);
-			if(survivorexemptobjective.getScore(p).getScore() == 0){
-				survivorexemptobjective.getScore(p).setScore(0);
-				survivortimeobjective.getScore(p).setScore(0);
-				afktimeobjective.getScore(p).setScore(0);
-				totalafktimeobjective.getScore(p).setScore(0);
-				afktpenaltyobjective.getScore(p).setScore(0);
-				topafktimeobjective.getScore(p).setScore(0);
-				toptickobjective.getScore(p).setScore(0);
-			}
-		}
+		for(Player p: server.getOnlinePlayers()) { initPlayer(p); }
 		
 		// Register Events
 		server.getPluginManager().registerEvents(new TopSurvivorListener(this), this);
@@ -100,19 +85,9 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		// Clean up players
 		for(Player p: server.getOnlinePlayers()) {
 			// Clean HashMaps
-			tshashmap.onDeath(p);
+			tshashmap.onLeave(p);
 			// Set Player Scores
-			Score exempt = survivorexemptobjective.getScore(p);
-			if(exempt.getScore() == 1){
-				Score afktime = afktimeobjective.getScore(p);
-				Score timesincedeath = timesincedeathobjective.getScore(p);
-				if((timesincedeath.getScore() - afktime.getScore()) > toptickobjective.getScore(p).getScore()){
-					toptickobjective.getScore(p).setScore(timesincedeath.getScore());
-					topafktimeobjective.getScore(p).setScore(afktime.getScore());
-				}
-				int currentdays = (int)Math.floor((toptickobjective.getScore(p).getScore() - topafktimeobjective.getScore(p).getScore() - afktpenaltyobjective.getScore(p).getScore())/24000);
-				survivortimeobjective.getScore(p).setScore(currentdays);
-			}
+			refreshPlayer(p);
 		}
 		// Update all online player before going down
 		Bukkit.getPluginManager().callEvent(tsupdate);
@@ -129,9 +104,6 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		tsboard = tsmanager.getMainScoreboard();
 		
 		// Check to see if Objectives exist and store them. If not, initiate them
-		if((afktimeobjective = tsboard.getObjective("afktime")) == null){
-			afktimeobjective = tsboard.registerNewObjective("afktime", "dummy");
-		}
 		if((totalafktimeobjective = tsboard.getObjective("totalafktime")) == null){
 			totalafktimeobjective = tsboard.registerNewObjective("totalafktime", "dummy");
 		}
@@ -144,20 +116,8 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		if(!(survivortimeobjective.getDisplayName().equals("Top Survivors (Days)"))){
 			survivortimeobjective.setDisplayName("Top Survivors (Days)");
 		}
-		if((survivorexemptobjective = tsboard.getObjective("survivorexempt")) == null){
-			survivorexemptobjective = tsboard.registerNewObjective("survivorexempt", "dummy");
-		}
 		if((timesincedeathobjective = tsboard.getObjective("timesincedeath")) == null){
 			timesincedeathobjective = tsboard.registerNewObjective("timesincedeath", "stat.timeSinceDeath");
-		}
-		if((afktpenaltyobjective = tsboard.getObjective("afktpenalty")) == null){
-			afktpenaltyobjective = tsboard.registerNewObjective("afktpenalty", "dummy");
-		}
-		if((topafktimeobjective = tsboard.getObjective("topafktime")) == null){
-			topafktimeobjective = tsboard.registerNewObjective("topafktime", "dummy");
-		}
-		if((toptickobjective = tsboard.getObjective("toptick")) == null){
-			toptickobjective = tsboard.registerNewObjective("toptick", "dummy");
 		}
 				
 		// Set survivor time to sidebar
@@ -168,26 +128,18 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	public void resetScoreboard() {
 		// Finalize online player
 		for(Player p: server.getOnlinePlayers()) {
+			TopSurvivorPlayer tsplayer = tshashmap.getTopSurvivorPlayer(p);
 			// Add final afktime to totalafktime
-			totalafktimeobjective.getScore(p).setScore(totalafktimeobjective.getScore(p).getScore() + afktimeobjective.getScore(p).getScore());
+			totalafktimeobjective.getScore(p).setScore(totalafktimeobjective.getScore(p).getScore() + tsplayer.getCurrentAfkTime());
 			// Mark final time
-			Score exempt = survivorexemptobjective.getScore(p);
-			if(exempt.getScore() == 1){
-				Score afktime = afktimeobjective.getScore(p);
-				Score timesincedeath = timesincedeathobjective.getScore(p);
-				if((timesincedeath.getScore() - afktime.getScore()) > (toptickobjective.getScore(p).getScore() - topafktimeobjective.getScore(p).getScore())){
-					toptickobjective.getScore(p).setScore(timesincedeath.getScore());
-					topafktimeobjective.getScore(p).setScore(afktime.getScore());
-				}
-				int currentdays = (int)Math.floor((toptickobjective.getScore(p).getScore() - topafktimeobjective.getScore(p).getScore() - afktpenaltyobjective.getScore(p).getScore())/24000);
-				survivortimeobjective.getScore(p).setScore(currentdays);
-			}
+			refreshPlayer(p);
 		}
 		
 		// Find Winners
 		List<OfflinePlayer> topsurvivors = getSortedList();
 		for(OfflinePlayer player : topsurvivors){ 
-			server.getLogger().info(player.getName() + ": " + (toptickobjective.getScore(player).getScore() - topafktimeobjective.getScore(player).getScore() - afktpenaltyobjective.getScore(player).getScore()));
+			TopSurvivorPlayer tsp = tshashmap.getTopSurvivorPlayer(player);
+			server.getLogger().info(player.getName() + ": " + (tsp.getTopTick() - tsp.getTopAfkTime() - tsp.getCurrentAfkTPenalty()));
 		}
 		
 		// Distribute Prizes
@@ -196,13 +148,9 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		// Reset Objectives
 		for(OfflinePlayer player : tsboard.getPlayers())
 		{
-			if(survivorexemptobjective.getScore(player).getScore() == 1){ survivorexemptobjective.getScore(player).setScore(1); }
+			tshashmap.getTopSurvivorPlayer(player).reset();
 			survivortimeobjective.getScore(player).setScore(0);
-			afktimeobjective.getScore(player).setScore(0);
 			totalafktimeobjective.getScore(player).setScore(0);
-			afktpenaltyobjective.getScore(player).setScore(0);
-			topafktimeobjective.getScore(player).setScore(0);
-			toptickobjective.getScore(player).setScore(0);
 			timesincedeathobjective.getScore(player).setScore(0);
 		}
 	}
@@ -235,11 +183,40 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	public List<OfflinePlayer> getSortedList(){
 		Set<OfflinePlayer> topsurvivorset = tsboard.getPlayers();
 		for(OfflinePlayer player : topsurvivorset){
-			if(survivorexemptobjective.getScore(player).getScore() != 1){ topsurvivorset.remove(player); }
+			if(!tshashmap.getTopSurvivorPlayer(player).getFlagExempt()){ topsurvivorset.remove(player); }
 		}
 		List<OfflinePlayer> topsurvivors = new ArrayList<OfflinePlayer>(topsurvivorset);
 		Collections.sort(topsurvivors, new TopSurvivorComparator());
 		return topsurvivors;
+	}
+	
+	// Init player
+	public void initPlayer(Player player){
+		TopSurvivorPlayer tsplayer = tshashmap.getTopSurvivorPlayer(player);
+		player.setScoreboard(tsboard);
+		
+		// Look to see if player has been initiated yet
+		if(tsplayer.getFlagNew()){
+			// Init player scores
+			TopSurvivor.survivortimeobjective.getScore(player).setScore(0);
+			TopSurvivor.totalafktimeobjective.getScore(player).setScore(0);
+			TopSurvivor.timesincedeathobjective.getScore(player).setScore(0);
+			tsplayer.setFlagNew(false);
+		}
+	}
+		
+	// Update Player Scores
+	public void refreshPlayer(Player player){
+		TopSurvivorPlayer tsplayer = tshashmap.getTopSurvivorPlayer(player);
+		if(!tsplayer.getFlagExempt()){
+			Score timesincedeath = timesincedeathobjective.getScore(player);
+			if((timesincedeath.getScore() - tsplayer.getCurrentAfkTime()) > (tsplayer.getTopTick() - tsplayer.getTopAfkTime())){
+				tsplayer.setTopTick(timesincedeath.getScore());
+				tsplayer.setTopAfkTime(tsplayer.getCurrentAfkTime());
+			}
+			int currentdays = (int)Math.floor((tsplayer.getTopTick() - tsplayer.getTopAfkTime() - tsplayer.getCurrentAfkTPenalty())/24000);
+			survivortimeobjective.getScore(player).setScore(currentdays);
+		}
 	}
 	
 }
