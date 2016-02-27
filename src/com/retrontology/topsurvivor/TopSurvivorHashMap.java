@@ -19,10 +19,13 @@ public class TopSurvivorHashMap {
 	private TopSurvivor plugin;
 	private int afktpenalty;
 	
-	// HashMaps
+	// AFK HashMaps
 	public static HashMap<String, Integer> timestampmap = new HashMap<String, Integer>();
 	public static HashMap<String, Integer> afkttimestampmap = new HashMap<String, Integer>();
 	public static HashMap<String, Boolean> essentialsafkmap = new HashMap<String, Boolean>();
+	
+	// Player HashMap
+	public static HashMap<Player, TopSurvivorPlayer> tsplayers = new HashMap<Player, TopSurvivorPlayer>();
 
 	/* Constructor */
 	
@@ -114,4 +117,24 @@ public class TopSurvivorHashMap {
 			TopSurvivor.afktpenaltyobjective.getScore(player).setScore(TopSurvivor.afktpenaltyobjective.getScore(player).getScore() + afktpenalty);
 		}
 	}
+	
+	/* Player HashMap Methods */
+	
+	// Get TopSurvivorPlayer
+	public TopSurvivorPlayer getTopSurvivorPlayer(Player player){
+		TopSurvivorPlayer tsp = null;
+		if(tsplayers.get(player) == null){
+			tsp = tsplayers.put(player, new TopSurvivorPlayer(player.getName(), plugin));
+		}else{
+			tsp = tsplayers.get(player);
+		}
+		return tsp;
+	}
+	
+	// Remove TopSurvivorPlayer
+	public TopSurvivorPlayer removeTopSurvivorPlayer(Player player){
+		return tsplayers.remove(player.getName());
+	}
+	
+	// Get TopSurvivor Player
 }

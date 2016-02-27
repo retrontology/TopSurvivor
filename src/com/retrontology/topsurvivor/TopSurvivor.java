@@ -4,6 +4,7 @@ import java.util.Set;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 
 import org.bukkit.Bukkit;
@@ -28,11 +29,8 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	// Scoreboard
 	public static ScoreboardManager tsmanager;
 	public static Scoreboard tsboard;
-	public static Objective afktimeobjective;			// Ticks
-	public static Objective afktpenaltyobjective;		// Ticks
 	public static Objective survivortimeobjective;		// Days
 	public static Objective timesincedeathobjective;	// Ticks
-	public static Objective survivorexemptobjective;	// Flag
 	public static Objective totalafktimeobjective;		// Ticks
 	public static Objective topafktimeobjective;		// Ticks
 	public static Objective toptickobjective;			// Ticks
@@ -43,6 +41,9 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	
 	// Events
 	private TopSurvivorUpdate tsupdate = new TopSurvivorUpdate();
+	
+	// Player HashMap
+	public static HashMap<Player, TopSurvivorPlayer> tsplayers;
 	
 	/* Init */
 	
@@ -226,7 +227,7 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	
 	// View detailed player data
 	public boolean viewPlayer(Player player, String requestedplayer) {
-		player.sendMessage(ChatColor.AQUA + "View Player");
+		player.sendMessage("View Player");
 		return true;
 	}
 	
