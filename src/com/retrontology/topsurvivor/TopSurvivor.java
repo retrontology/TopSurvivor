@@ -207,9 +207,27 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	}
 	
 	// View Scoreboard
-	public void viewScoreboard(Player player) {
+	public boolean viewScoreboard(Player player, int page) {
+		// Get Players
 		List<OfflinePlayer> topsurvivors = getSortedList();
-		player.sendMessage(ChatColor.AQUA + "View");
+		// Get max pages
+		int pagemax = topsurvivors.size();
+		pagemax = (pagemax % 10 == 0) ? pagemax/10: pagemax/10+1;
+		// If requested page number is out of limits, tell the executor
+		if(page > pagemax){ return false; }
+		// Send player the Leaderboard
+		int offset = (page-1)*10;
+		player.sendMessage("---- Top Survivors -- Page " + page + "/" + pagemax + " ----");
+		for(int i = offset; i < (10+offset) && i < topsurvivors.size(); i++){
+			player.sendMessage((i+1) + ". " + topsurvivors.get(i).getName());
+		}
+		return true;
+	}
+	
+	// View detailed player data
+	public boolean viewPlayer(Player player, String requestedplayer) {
+		player.sendMessage(ChatColor.AQUA + "View Player");
+		return true;
 	}
 	
 	// Get Sorted List of Players
@@ -222,4 +240,5 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		Collections.sort(topsurvivors, new TopSurvivorComparator());
 		return topsurvivors;
 	}
+	
 }
