@@ -1,6 +1,7 @@
 package com.retrontology.topsurvivor;
 
 import java.util.Set;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -36,6 +37,7 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	// Plugins/Server
 	public static Server server;
 	public static TopSurvivorHashMap tshashmap;
+	public static File playerDir;
 	
 	// Events
 	private TopSurvivorUpdate tsupdate = new TopSurvivorUpdate();
@@ -52,6 +54,7 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	public void onEnable() {
 		// Store plugin and server
 		server = getServer();
+		playerDir = new File(server.getPluginManager().getPlugin("TopSurvivor").getDataFolder(), File.separator+"Players");
 		
 		// Init Hashmaps
 		tshashmap = new TopSurvivorHashMap(this);
@@ -145,8 +148,8 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		// Distribute Prizes
 		
 		
-		// Reset Objectives
-		for(OfflinePlayer player : tsboard.getPlayers())
+		// Reset Objectives !!! NEED TO REWRITE TO CLEAR PLAYER FILES !!!
+		for(OfflinePlayer player : topsurvivors)
 		{
 			tshashmap.getTopSurvivorPlayer(player).reset();
 			survivortimeobjective.getScore(player).setScore(0);
@@ -181,11 +184,13 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	
 	// Get Sorted List of Players
 	public List<OfflinePlayer> getSortedList(){
-		Set<OfflinePlayer> topsurvivorset = tsboard.getPlayers();
-		for(OfflinePlayer player : topsurvivorset){
-			if(!tshashmap.getTopSurvivorPlayer(player).getFlagExempt()){ topsurvivorset.remove(player); }
+		File[] topsurvivorarray = playerDir.listFiles();
+		List<OfflinePlayer> topsurvivors = new ArrayList<OfflinePlayer>();
+		for(File playerfile : topsurvivorarray){
+		 	String player = playerfile.getName().substring(0, playerfile.getName().indexOf('.'));
+			if(!tshashmap.getTopSurvivorPlayer(player).getFlagExempt()){ topsurvivors.add(server.getOfflinePlayer(player)); }
 		}
-		List<OfflinePlayer> topsurvivors = new ArrayList<OfflinePlayer>(topsurvivorset);
+		//
 		Collections.sort(topsurvivors, new TopSurvivorComparator());
 		return topsurvivors;
 	}
@@ -194,7 +199,6 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	public void initPlayer(Player player){
 		TopSurvivorPlayer tsplayer = tshashmap.getTopSurvivorPlayer(player);
 		player.setScoreboard(tsboard);
-		
 		// Look to see if player has been initiated yet
 		if(tsplayer.getFlagNew()){
 			// Init player scores
@@ -202,6 +206,7 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 			TopSurvivor.totalafktimeobjective.getScore(player).setScore(0);
 			TopSurvivor.timesincedeathobjective.getScore(player).setScore(0);
 			tsplayer.setFlagNew(false);
+			TopSurvivor.server.getLogger().info("[Top Survivor] " + tsplayer.getPlayerName() + " has been initiated");
 		}
 	}
 		

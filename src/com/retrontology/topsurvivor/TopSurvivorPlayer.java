@@ -6,34 +6,36 @@ import java.io.IOException;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Player;
 
 public class TopSurvivorPlayer {
 	
 	/* Class Variables */
 	private File file;
-	private FileConfiguration config = null;
-	private OfflinePlayer player;
+	private FileConfiguration config;
+	private String player;
 	private TopSurvivor plugin;
 
 	/* Constructor */
 	public TopSurvivorPlayer(String playername, TopSurvivor plugin) {
 		// Set Class Variables
-		this.player = plugin.server.getOfflinePlayer(playername);
+		this.player = playername;
 		this.plugin = plugin;
-		// Load player file into memory or create and init it if there isn't one
-		file = new File("plugins"+File.separator+"PluginName"+File.separator+"Players"+File.separator+player.getName()+".yml");
+		// Init directory if it's not there
+		File filedir = new File(plugin.server.getPluginManager().getPlugin("TopSurvivor").getDataFolder(), File.separator+"Players");
+        if (!filedir.exists()) { filedir.mkdir(); }
+        // Load player file into memory or, create and init it if there isn't one
+		file = new File(filedir, File.separator+player+".yml");
 		if(!file.exists()){
 		    try {
 		        file.createNewFile();
-		        plugin.server.getLogger().info("[Top Survivor] File Created: "+ player.getName() + ".yml");
+		        plugin.server.getLogger().info("[Top Survivor] File Created: "+ player + ".yml");
 		        
 		    } catch (IOException e) {
 		        e.printStackTrace();
 		    }
 		 
 		    config = YamlConfiguration.loadConfiguration(file);
-		    config.set("Player.Name", player.getName());
+		    config.set("Player.Name", player);
 		    config.set("Current.AfkTime", 0);			// Ticks
 		    config.set("Current.AfkTPenalty", 0);		// Ticks
 		    config.set("Flag.Exempt", false);			// Flag
@@ -46,6 +48,8 @@ public class TopSurvivorPlayer {
 		    } catch (IOException e) {
 		        e.printStackTrace();
 		    }
+		}else{
+			config = YamlConfiguration.loadConfiguration(file);
 		}
 	}
 	
@@ -76,36 +80,47 @@ public class TopSurvivorPlayer {
 		return config.getBoolean("Flag.New");
 	}
 	
+	public String getPlayerName(){
+		return player;
+	}
+	
 	// Set player info
 	public int setCurrentAfkTime(int i){
 		config.set("Current.AfkTime", i);
+		save();
 		return i;
 	}
 	
 	public int setCurrentAfkTPenalty(int i){
 		config.set("Current.AfkTPenalty", i);
+		save();
 		return i;
 	}
 	
 	public boolean setFlagExempt(boolean i){
 		config.set("Flag.Exempt", i);
+		save();
 		return i;
 	}
 	
 	public boolean setFlagNew(boolean i){
 		config.set("Flag.New", i);
+		save();
 		return i;
 	}
 	
 	public int setTopTick(int i){
 		config.set("Top.Tick", i);
+		save();
 		return i;
 	}
 	
 	public int setTopAfkTime(int i){
 		config.set("Top.AfkTime", i);
+		save();
 		return i;
 	}
+
 	
 	// Reset player stats
 	public void reset(){
@@ -115,6 +130,7 @@ public class TopSurvivorPlayer {
 	    config.set("Flag.New", false);
 	    config.set("Top.Tick", 0);
 	    config.set("Top.AfkTime", 0);
+	    save();
 	}
 	
 	// Save player to disk

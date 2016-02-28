@@ -42,11 +42,11 @@ public class TopSurvivorHashMap {
 	public void onChangeEssentialsAfk(AfkStatusChangeEvent event){
 		IUser user = event.getAffected();
 		Player player = TopSurvivor.server.getPlayer(user.getName());
-		TopSurvivorPlayer tsplayer = tsplayers.get(player);
+		TopSurvivorPlayer tsplayer = tsplayers.get(player.getName());
 		// I'm unsure of this logic. Look here if there's a problem with essentials afk time registering
 		if (!user.isAfk()){
 			// Store Timestamp in map
-			timestampmap.put(user.getName(), TopSurvivor.timesincedeathobjective.getScore(player).getScore());
+			timestampmap.put(player.getName(), TopSurvivor.timesincedeathobjective.getScore(player).getScore());
 			essentialsafkmap.put(user.getName(), true);
 		}else if (essentialsafkmap.get(user.getName()) != null){
 			// Add to AFK Time Objective
@@ -61,7 +61,7 @@ public class TopSurvivorHashMap {
 	}
 	
 	public void onAFKTerminator(Player p){
-		TopSurvivorPlayer tsplayer = tsplayers.get(p);
+		TopSurvivorPlayer tsplayer = tsplayers.get(p.getName());
 		// See if they're using an afk machine
 		if(AfkTerminatorAPI.isAFKMachineDetected(p.getName())){
 			// Initialize Player if they're not already detected
@@ -79,7 +79,7 @@ public class TopSurvivorHashMap {
 	
 	// Triggers on Leave
 	public void onLeave(Player player){
-		TopSurvivorPlayer tsplayer = tsplayers.get(player);
+		TopSurvivorPlayer tsplayer = tsplayers.get(player.getName());
 		// Clean Essentials
 		if(essentialsafkmap.get(player.getName()) != null){
 			// Add to AFK Time Objective
@@ -103,7 +103,7 @@ public class TopSurvivorHashMap {
 	
 	// Trigger on Death
 	public void onDeath(Player player){
-		TopSurvivorPlayer tsplayer = tsplayers.get(player);
+		TopSurvivorPlayer tsplayer = tsplayers.get(player.getName());
 		// Clean Essentials
 		if(essentialsafkmap.get(player.getName()) != null){
 			// Add to AFK Time Objective
@@ -127,36 +127,26 @@ public class TopSurvivorHashMap {
 	
 	// Get TopSurvivorPlayer
 	public TopSurvivorPlayer getTopSurvivorPlayer(Player player){
-		TopSurvivorPlayer tsp = null;
 		if(tsplayers.get(player.getName()) == null){
-			tsp = tsplayers.put(player.getName(), new TopSurvivorPlayer(player.getName(), plugin));
-		}else{
-			tsp = tsplayers.get(player);
+			tsplayers.put(player.getName(), new TopSurvivorPlayer(player.getName(), plugin));
 		}
-		return tsp;
+		return tsplayers.get(player.getName());
 	}
 	public TopSurvivorPlayer getTopSurvivorPlayer(OfflinePlayer player){
-		TopSurvivorPlayer tsp = null;
 		if(tsplayers.get(player.getName()) == null){
-			tsp = tsplayers.put(player.getName(), new TopSurvivorPlayer(player.getName(), plugin));
-		}else{
-			tsp = tsplayers.get(player);
+			tsplayers.put(player.getName(), new TopSurvivorPlayer(player.getName(), plugin));
 		}
-		return tsp;
+		return tsplayers.get(player.getName());
 	}
 	public TopSurvivorPlayer getTopSurvivorPlayer(String player){
-		TopSurvivorPlayer tsp = null;
 		if(tsplayers.get(player) == null){
-			tsp = tsplayers.put(player, new TopSurvivorPlayer(player, plugin));
-		}else{
-			tsp = tsplayers.get(player);
+			tsplayers.put(player, new TopSurvivorPlayer(player, plugin));
 		}
-		return tsp;
+		return tsplayers.get(player);
 	}
 	
 	// Remove TopSurvivorPlayer
 	public TopSurvivorPlayer removeTopSurvivorPlayer(Player player){
-		tsplayers.get(player).save();
 		return tsplayers.remove(player.getName());
 	}
 
