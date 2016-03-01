@@ -52,24 +52,24 @@ public class TopSurvivorCommandExecutor implements CommandExecutor {
 				boolean page = true;
 				int pagenumber = 0;
 				// Parse argument for number
-				for(int i = 0; i < args[2].length(); i++){
+				for(int i = 0; i < args[1].length(); i++){
 					// Signal for player info if not a number
-					if(Character.getNumericValue(args[2].charAt(i)) > 39 || Character.getNumericValue(args[2].charAt(i)) < 30){
+					if(Character.getNumericValue(args[1].charAt(i)) > 39 || Character.getNumericValue(args[1].charAt(i)) < 30){
 						page = false;
 						break;
 					}else{
 						// Move number left
 						pagenumber *= 10;
 						// Add next digit
-						pagenumber += (Character.getNumericValue(args[2].charAt(i)) - 30);
+						pagenumber += (Character.getNumericValue(args[1].charAt(i)) - 30);
 					}
 				}
 				// View additional scoreboard pages
 				if(page){
 					return plugin.viewScoreboard(player, pagenumber);
 				// View detailed info of player	
-				}else if(player.hasPermission("topsurvivor.admin")){
-					return plugin.viewPlayer(player, args[2]);
+				}else if(player.hasPermission("topsurvivor.admin") || (args[1].equalsIgnoreCase(player.getName()))){
+					return plugin.viewPlayer(player, args[1]);
 				}
 			}
 			

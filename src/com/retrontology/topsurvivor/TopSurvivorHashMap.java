@@ -149,5 +149,25 @@ public class TopSurvivorHashMap {
 	public TopSurvivorPlayer removeTopSurvivorPlayer(Player player){
 		return tsplayers.remove(player.getName());
 	}
+	public TopSurvivorPlayer removeTopSurvivorPlayer(OfflinePlayer player){
+		return tsplayers.remove(player.getName());
+	}
+	public TopSurvivorPlayer removeTopSurvivorPlayer(String player){
+		return tsplayers.remove(player);
+	}
+	
+	// Delete TopSurvivorPlayer
+	public void deleteTopSurvivorPlayer(Player player){
+		tsplayers.get(player.getName()).delete();
+		tsplayers.remove(player.getName());
+	}
+	public void deleteTopSurvivorPlayer(OfflinePlayer player){
+		tsplayers.get(player.getName()).delete();
+		tsplayers.remove(player.getName());
+	}
+	public void deleteTopSurvivorPlayer(String player){
+		tsplayers.get(player).delete();
+		tsplayers.remove(player);
+	}
 
 }

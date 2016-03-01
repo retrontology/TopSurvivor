@@ -40,6 +40,7 @@ public class TopSurvivorPlayer {
 		    config.set("Current.AfkTPenalty", 0);		// Ticks
 		    config.set("Flag.Exempt", false);			// Flag
 		    config.set("Flag.New", true);				// Flag
+		    config.set("Flag.Perma", false);			// Flag
 		    config.set("Top.Tick", 0);					// Ticks
 		    config.set("Top.AfkTime", 0);				// Ticks
 		 
@@ -80,6 +81,10 @@ public class TopSurvivorPlayer {
 		return config.getBoolean("Flag.New");
 	}
 	
+	public boolean getFlagPermaban(){
+		return config.getBoolean("Flag.Perma");
+	}
+	
 	public String getPlayerName(){
 		return player;
 	}
@@ -109,6 +114,12 @@ public class TopSurvivorPlayer {
 		return i;
 	}
 	
+	public boolean setFlagPermaban( boolean i){
+		config.set("Flag.Perma", i);
+		save();
+		return i;
+	}
+	
 	public int setTopTick(int i){
 		config.set("Top.Tick", i);
 		save();
@@ -120,6 +131,7 @@ public class TopSurvivorPlayer {
 		save();
 		return i;
 	}
+
 
 	
 	// Reset player stats
@@ -134,12 +146,24 @@ public class TopSurvivorPlayer {
 	}
 	
 	// Save player to disk
-	public void save(){
+	public boolean save(){
 		try {
 	        config.save(file);
+	        return true;
 	    } catch (IOException e) {
 	        e.printStackTrace();
+	        return false;
 	    }
+	}
+	
+	// Delete player file
+	public void delete(){
+		try {
+			file.delete();
+		} catch (SecurityException e) {
+		    // File permission problems are caught here.
+		    e.printStackTrace();
+		}
 	}
 	
 }

@@ -148,17 +148,20 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		// Distribute Prizes
 		
 		
-		// Reset Objectives !!! NEED TO REWRITE TO CLEAR PLAYER FILES !!!
-		for(OfflinePlayer player : topsurvivors)
-		{
-			tshashmap.getTopSurvivorPlayer(player).reset();
-			survivortimeobjective.getScore(player).setScore(0);
-			totalafktimeobjective.getScore(player).setScore(0);
-			timesincedeathobjective.getScore(player).setScore(0);
+		// Reset Objectives
+		survivortimeobjective.unregister();
+		timesincedeathobjective.unregister();
+		totalafktimeobjective.unregister();
+		makeScoreboard();
+		
+		// Clean and reinit players
+		for(OfflinePlayer player : topsurvivors) { 
+			if(!tshashmap.getTopSurvivorPlayer(player).getFlagPermaban()){ tshashmap.deleteTopSurvivorPlayer(player); }
 		}
+		for(Player p: server.getOnlinePlayers()) { initPlayer(p); }
 	}
 	
-	// View Scoreboard
+	// View Scoreboard !!! NEED TO FIX !!!
 	public boolean viewScoreboard(Player player, int page) {
 		// Get Players
 		List<OfflinePlayer> topsurvivors = getSortedList();
@@ -178,7 +181,13 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	
 	// View detailed player data
 	public boolean viewPlayer(Player player, String requestedplayer) {
-		player.sendMessage("View Player");
+		TopSurvivorPlayer tsp = tshashmap.getTopSurvivorPlayer(requestedplayer);
+		player.sendMessage("---- Top Survivor -- " + requestedplayer + " ----");
+		player.sendMessage("Time Since Last Death: " + TimeConverter.getString(timesincedeathobjective.getScore(requestedplayer).getScore()));
+		player.sendMessage("AFK Time Since Last Death: " + TimeConverter.getString(tsp.getCurrentAfkTime()));
+		player.sendMessage("AFK Terminator Penalty: " + TimeConverter.getString(tsp.getCurrentAfkTPenalty()));
+		player.sendMessage("Current Time Counted for Top Survivor: " + TimeConverter.getString(timesincedeathobjective.getScore(requestedplayer).getScore() - tsp.getCurrentAfkTime() - tsp.getCurrentAfkTPenalty()));
+		player.sendMessage("Best Time Counted for Top Survivor: " + TimeConverter.getString(tsp.getTopTick() - tsp.getTopAfkTime() - tsp.getCurrentAfkTPenalty()));
 		return true;
 	}
 	
@@ -202,12 +211,14 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		// Look to see if player has been initiated yet
 		if(tsplayer.getFlagNew()){
 			// Init player scores
-			TopSurvivor.survivortimeobjective.getScore(player).setScore(0);
+			if(!player.hasPermission("topsurvivor.admin")){ TopSurvivor.survivortimeobjective.getScore(player).setScore(0); }
 			TopSurvivor.totalafktimeobjective.getScore(player).setScore(0);
 			TopSurvivor.timesincedeathobjective.getScore(player).setScore(0);
 			tsplayer.setFlagNew(false);
 			TopSurvivor.server.getLogger().info("[Top Survivor] " + tsplayer.getPlayerName() + " has been initiated");
 		}
+		// Exclude admins
+		if(player.hasPermission("topsurvivor.admin") || tsplayer.getFlagPermaban()){ tsplayer.setFlagExempt(true); }
 	}
 		
 	// Update Player Scores
@@ -222,6 +233,32 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 			int currentdays = (int)Math.floor((tsplayer.getTopTick() - tsplayer.getTopAfkTime() - tsplayer.getCurrentAfkTPenalty())/24000);
 			survivortimeobjective.getScore(player).setScore(currentdays);
 		}
+	}
+	
+	// Temp Ban Player
+	public void tempBan(String player){
+		TopSurvivorPlayer tsp = tshashmap.getTopSurvivorPlayer(player);
+		tsp.reset();
+		tsp.setFlagExempt(true);
+		survivortimeobjective.getScore(player).setScore(0);
+	}
+	
+	// Perma Ban Player
+	public void permaBan(String player){
+		TopSurvivorPlayer tsp = tshashmap.getTopSurvivorPlayer(player);
+		tsp.reset();
+		tsp.setFlagExempt(true);
+		tsp.setFlagPermaban(true);
+		survivortimeobjective.getScore(player).setScore(0);
+	}
+	
+	// Unban Player
+	public void unban(String player){
+		TopSurvivorPlayer tsp = tshashmap.getTopSurvivorPlayer(player);
+		tsp.reset();
+		tsp.setFlagExempt(true);
+		tsp.setFlagPermaban(true);
+		survivortimeobjective.getScore(player).setScore(0);
 	}
 	
 }
