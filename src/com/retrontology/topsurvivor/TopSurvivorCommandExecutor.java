@@ -77,19 +77,15 @@ public class TopSurvivorCommandExecutor implements CommandExecutor {
 			}
 			// Temp ban player command
 			if(args.length == 2 && args[0].equalsIgnoreCase("tempban") && player.hasPermission("topsurvivor.admin")){
-				List<OfflinePlayer> topsurvivors = plugin.getPlayerList();
-				if(topsurvivors.contains(plugin.server.getOfflinePlayer(args[1]))){
-					plugin.tempBan(args[1]);
+				if(plugin.tempBan(args[1])){
 					player.sendMessage(args[1] + " has been banned from the Top Survivor Leaderboard");
 					plugin.server.getLogger().info("[Top Survivor] " + args[1] + " has been banned");
-					return true;
+					return true;	
 				}else{ return false; }
 			}
 			// Permaban player command
 			if(args.length == 2 && args[0].equalsIgnoreCase("permaban") && player.hasPermission("topsurvivor.admin")){
-				List<OfflinePlayer> topsurvivors = plugin.getPlayerList();
-				if(topsurvivors.contains(plugin.server.getOfflinePlayer(args[1]))){
-					plugin.permaBan(args[1]);
+				if(plugin.permaBan(args[1])){
 					player.sendMessage(args[1] + " has been permabanned from the Top Survivor Leaderboard. rip");
 					plugin.server.getLogger().info("[Top Survivor] " + args[1] + " has been permabanned");
 					return true;
@@ -97,14 +93,9 @@ public class TopSurvivorCommandExecutor implements CommandExecutor {
 			}
 			// Unban player command
 			if(args.length == 2 && args[0].equalsIgnoreCase("unban") && player.hasPermission("topsurvivor.admin")){
-				List<OfflinePlayer> topsurvivors = plugin.getPlayerList();
-				if(topsurvivors.contains(plugin.server.getOfflinePlayer(args[1]))){
-					boolean unbanned = plugin.unBan(args[1]);
-					if(unbanned){
-						player.sendMessage(args[1] + " has been unbanned from the Top Survivor Leaderboard");
-						plugin.server.getLogger().info("[Top Survivor] " + args[1] + " has been unbanned");
-					}
-					return unbanned;
+				if(plugin.unBan(args[1])){
+					player.sendMessage(args[1] + " has been unbanned from the Top Survivor Leaderboard");
+					plugin.server.getLogger().info("[Top Survivor] " + args[1] + " has been unbanned");
 				}else{ return false; }
 			}
 		}
