@@ -1,6 +1,6 @@
 main: com.retrontology.topsurvivor.TopSurvivor
 name: TopSurvivor
-version: 0.7.3
+version: 0.7.4
 author: Retrontology
 description: A plugin that creates a scoreboard system from players time since last death, with afk time subtracted
 permissions: 
@@ -15,20 +15,23 @@ commands:
     description: View Top Survivor Leaderboard
     aliases: [ts, topsurvivors] 
     permission: topsurvivor.citizen
-    permission-message: Become a citizen to view the Top Surivor Board
+    permission-message: Become a citizen to view the Top Survivor Board
     usage: |
       Use /help topsurvivor [subcommand] for more information
       /topsurvivor - View Top Survivor Leaderboard
       /topsurvivor view - View Top Survivor Leaderboard
       /topsurvivor reset - Reset Top Survivor Leaderboard
       /topsurvivor update - Update Top Survivor Leaderboard
+      /topsurvivor tempban - Ban a player until the board is reset
+      /topsurvivor permaban - Ban a player until they are unbanned
+      /topsurvivor unban - Unban a player from the board
   topsurvivor view:
     description: View Top Survivor Leaderboard
     aliases: [topsurvivor v]
     permission: topsurvivor.citizen
-    permission-message: Become a citizen to view the Top Surivor Board
+    permission-message: Become a citizen to view the Top Survivor Board
     usage: |
-      /topsurvivor view
+      /topsurvivor view [player/page]
   topsurvivor reset:
     description: Reset Top Survivor Leaderboard
     permission: topsurvivor.admin
@@ -41,3 +44,22 @@ commands:
     permission-message: What do you think you are doing :I
     usage: |
       /topsurvivor update
+  topsurvivor tempban:
+    description: Ban player until the scoreboard is reset
+    aliases: [topsurvivor ban]
+    permission: topsurvivor.admin
+    permission-message: What do you think you are doing :I
+    usage: |
+      /topsurvivor tempban [player]
+  topsurvivor permaban:
+    description: Ban player until they are unbanned
+    permission: topsurvivor.admin
+    permission-message: What do you think you are doing :I
+    usage: |
+      /topsurvivor permaban [player]
+  topsurvivor unban:
+    description: Unban a player and let them start participating immediately
+    permission: topsurvivor.admin
+    permission-message: What do you think you are doing :I
+    usage: |
+      /topsurvivor unban [player]

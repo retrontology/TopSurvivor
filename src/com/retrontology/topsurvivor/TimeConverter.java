@@ -2,10 +2,10 @@ package com.retrontology.topsurvivor;
 
 public class TimeConverter {
 
-	private static double day = 24000;
-	private static double hour = 1000;
-	private static double minute = 1000/60;
-	private static double second = minute/60;
+	public static double day = 24000;
+	public static double hour = 1000;
+	public static double minute = 1000/60;
+	public static double second = minute/60;
 	
 	public static String getString(int ticks){
 		String time = "";
@@ -31,4 +31,5 @@ public class TimeConverter {
 	public static int getSeconds(int ticks){
 		return (int) Math.floor(ticks%day%hour%minute/second);
 	}
+	
 }

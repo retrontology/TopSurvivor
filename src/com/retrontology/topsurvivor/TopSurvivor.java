@@ -2,6 +2,7 @@ package com.retrontology.topsurvivor;
 
 import java.util.Set;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -12,6 +13,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Server;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -38,6 +41,8 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	public static Server server;
 	public static TopSurvivorHashMap tshashmap;
 	public static File playerDir;
+	public static File configFile;
+	public static FileConfiguration config;
 	
 	// Events
 	private TopSurvivorUpdate tsupdate = new TopSurvivorUpdate();
@@ -55,6 +60,7 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		// Store plugin and server
 		server = getServer();
 		playerDir = new File(server.getPluginManager().getPlugin("TopSurvivor").getDataFolder(), File.separator+"Players");
+		loadConfig();
 		
 		// Init Hashmaps
 		tshashmap = new TopSurvivorHashMap(this);
@@ -94,6 +100,8 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		}
 		// Update all online player before going down
 		Bukkit.getPluginManager().callEvent(tsupdate);
+		// Remove Top Survivor objective
+		survivortimeobjective.unregister();
 	}
 	
 	
@@ -121,6 +129,12 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		}
 		if((timesincedeathobjective = tsboard.getObjective("timesincedeath")) == null){
 			timesincedeathobjective = tsboard.registerNewObjective("timesincedeath", "stat.timeSinceDeath");
+		}
+		
+		// Build Survivor Time Objective
+		for(OfflinePlayer player: getSortedList()){
+			TopSurvivorPlayer tsp = tshashmap.getTopSurvivorPlayer(player);
+			survivortimeobjective.getScore(player).setScore(TimeConverter.getDays(tsp.getTopTick() - tsp.getTopAfkTime() - tsp.getCurrentAfkTPenalty()));
 		}
 				
 		// Set survivor time to sidebar
@@ -191,7 +205,7 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		return true;
 	}
 	
-	// Get Sorted List of Players
+	// Get Sorted List of Eligible Players
 	public List<OfflinePlayer> getSortedList(){
 		File[] topsurvivorarray = playerDir.listFiles();
 		List<OfflinePlayer> topsurvivors = new ArrayList<OfflinePlayer>();
@@ -199,6 +213,16 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		 	String player = playerfile.getName().substring(0, playerfile.getName().indexOf('.'));
 			if(!tshashmap.getTopSurvivorPlayer(player).getFlagExempt()){ topsurvivors.add(server.getOfflinePlayer(player)); }
 		}
+		//
+		Collections.sort(topsurvivors, new TopSurvivorComparator());
+		return topsurvivors;
+	}
+	
+	// Get List of all players stored in yamls
+	public List<OfflinePlayer> getPlayerList(){
+		File[] topsurvivorarray = playerDir.listFiles();
+		List<OfflinePlayer> topsurvivors = new ArrayList<OfflinePlayer>();
+		for(File playerfile : topsurvivorarray){ topsurvivors.add(server.getOfflinePlayer(playerfile.getName().substring(0, playerfile.getName().indexOf('.')))); }
 		//
 		Collections.sort(topsurvivors, new TopSurvivorComparator());
 		return topsurvivors;
@@ -217,13 +241,14 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 			tsplayer.setFlagNew(false);
 			TopSurvivor.server.getLogger().info("[Top Survivor] " + tsplayer.getPlayerName() + " has been initiated");
 		}
-		// Exclude admins
+		// Exclude admins and permabanned peeps
 		if(player.hasPermission("topsurvivor.admin") || tsplayer.getFlagPermaban()){ tsplayer.setFlagExempt(true); }
 	}
 		
 	// Update Player Scores
 	public void refreshPlayer(Player player){
 		TopSurvivorPlayer tsplayer = tshashmap.getTopSurvivorPlayer(player);
+		tshashmap.onRefresh(player);
 		if(!tsplayer.getFlagExempt()){
 			Score timesincedeath = timesincedeathobjective.getScore(player);
 			if((timesincedeath.getScore() - tsplayer.getCurrentAfkTime()) > (tsplayer.getTopTick() - tsplayer.getTopAfkTime())){
@@ -238,6 +263,7 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	// Temp Ban Player
 	public void tempBan(String player){
 		TopSurvivorPlayer tsp = tshashmap.getTopSurvivorPlayer(player);
+		refreshPlayer(server.getPlayer(player));
 		tsp.reset();
 		tsp.setFlagExempt(true);
 		survivortimeobjective.getScore(player).setScore(0);
@@ -246,6 +272,7 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	// Perma Ban Player
 	public void permaBan(String player){
 		TopSurvivorPlayer tsp = tshashmap.getTopSurvivorPlayer(player);
+		refreshPlayer(server.getPlayer(player));
 		tsp.reset();
 		tsp.setFlagExempt(true);
 		tsp.setFlagPermaban(true);
@@ -253,12 +280,34 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	}
 	
 	// Unban Player
-	public void unban(String player){
+	public boolean unBan(String player){
 		TopSurvivorPlayer tsp = tshashmap.getTopSurvivorPlayer(player);
-		tsp.reset();
-		tsp.setFlagExempt(true);
-		tsp.setFlagPermaban(true);
-		survivortimeobjective.getScore(player).setScore(0);
+		if(tsp.getFlagExempt()){
+			refreshPlayer(server.getPlayer(player));
+			tsp.reset();
+			tsp.setFlagExempt(false);
+			tsp.setFlagPermaban(false);
+			survivortimeobjective.getScore(player).setScore(0);
+			return true;
+		}
+		return false;
+	}
+	
+	/* Config Methods */
+	
+	// Load config (load values in config.yml or create and init if it doesn't exist
+	public void loadConfig(){
+		if(!server.getPluginManager().getPlugin("TopSurvivor").getDataFolder().exists()){ server.getPluginManager().getPlugin("TopSurvivor").getDataFolder().mkdir(); }
+		configFile = new File(server.getPluginManager().getPlugin("TopSurvivor").getDataFolder(), File.separator+"config.yml");
+		if(!configFile.exists()){
+			this.saveDefaultConfig();
+			config = YamlConfiguration.loadConfiguration(configFile);
+			server.getLogger().info("[Top Survivor] No config file was found so the default file was copied over");
+		}else{ config = YamlConfiguration.loadConfiguration(configFile); }
+	}
+	
+	public int getAFKTerminatorPenalty(){
+		return config.getInt("AfkTerminatorPenalty");
 	}
 	
 }

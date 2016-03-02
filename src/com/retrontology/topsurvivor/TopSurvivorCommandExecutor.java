@@ -1,7 +1,10 @@
 package com.retrontology.topsurvivor;
 
+import java.util.List;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -54,14 +57,14 @@ public class TopSurvivorCommandExecutor implements CommandExecutor {
 				// Parse argument for number
 				for(int i = 0; i < args[1].length(); i++){
 					// Signal for player info if not a number
-					if(Character.getNumericValue(args[1].charAt(i)) > 39 || Character.getNumericValue(args[1].charAt(i)) < 30){
+					if(Character.getNumericValue(args[1].charAt(i)) > 9){
 						page = false;
 						break;
 					}else{
 						// Move number left
 						pagenumber *= 10;
 						// Add next digit
-						pagenumber += (Character.getNumericValue(args[1].charAt(i)) - 30);
+						pagenumber += (Character.getNumericValue(args[1].charAt(i)));
 					}
 				}
 				// View additional scoreboard pages
@@ -70,9 +73,40 @@ public class TopSurvivorCommandExecutor implements CommandExecutor {
 				// View detailed info of player	
 				}else if(player.hasPermission("topsurvivor.admin") || (args[1].equalsIgnoreCase(player.getName()))){
 					return plugin.viewPlayer(player, args[1]);
-				}
+				}else{ return false; }
 			}
-			
+			// Temp ban player command
+			if(args.length == 2 && args[0].equalsIgnoreCase("tempban") && player.hasPermission("topsurvivor.admin")){
+				List<OfflinePlayer> topsurvivors = plugin.getPlayerList();
+				if(topsurvivors.contains(plugin.server.getOfflinePlayer(args[1]))){
+					plugin.tempBan(args[1]);
+					player.sendMessage(args[1] + " has been banned from the Top Survivor Leaderboard");
+					plugin.server.getLogger().info("[Top Survivor] " + args[1] + " has been banned");
+					return true;
+				}else{ return false; }
+			}
+			// Permaban player command
+			if(args.length == 2 && args[0].equalsIgnoreCase("permaban") && player.hasPermission("topsurvivor.admin")){
+				List<OfflinePlayer> topsurvivors = plugin.getPlayerList();
+				if(topsurvivors.contains(plugin.server.getOfflinePlayer(args[1]))){
+					plugin.permaBan(args[1]);
+					player.sendMessage(args[1] + " has been permabanned from the Top Survivor Leaderboard. rip");
+					plugin.server.getLogger().info("[Top Survivor] " + args[1] + " has been permabanned");
+					return true;
+				}else{ return false; }
+			}
+			// Unban player command
+			if(args.length == 2 && args[0].equalsIgnoreCase("unban") && player.hasPermission("topsurvivor.admin")){
+				List<OfflinePlayer> topsurvivors = plugin.getPlayerList();
+				if(topsurvivors.contains(plugin.server.getOfflinePlayer(args[1]))){
+					boolean unbanned = plugin.unBan(args[1]);
+					if(unbanned){
+						player.sendMessage(args[1] + " has been unbanned from the Top Survivor Leaderboard");
+						plugin.server.getLogger().info("[Top Survivor] " + args[1] + " has been unbanned");
+					}
+					return unbanned;
+				}else{ return false; }
+			}
 		}
 		return false;
 	}
