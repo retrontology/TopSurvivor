@@ -1,6 +1,6 @@
 main: com.retrontology.topsurvivor.TopSurvivor
 name: TopSurvivor
-version: 0.7.5
+version: 0.7.6
 author: Retrontology
 description: A plugin that creates a scoreboard system from players time since last death, with afk time subtracted
 permissions: 
@@ -25,6 +25,7 @@ commands:
       /topsurvivor tempban - Ban a player until the board is reset
       /topsurvivor permaban - Ban a player until they are unbanned
       /topsurvivor unban - Unban a player from the board
+      /topsurvivor afktpenalty - Modify a players AFKTerminator Penalty
   topsurvivor view:
     description: View Top Survivor Leaderboard
     aliases: [topsurvivor v]
@@ -63,3 +64,8 @@ commands:
     permission-message: What do you think you are doing :I
     usage: |
       /topsurvivor unban [player]
+  topsurvivor afktpenalty:
+    description: Modify a player's AFKTerminator penalty
+    permission: topsurvivor.admin
+    permission-message: What do you think you are doing :I
+    usage: 

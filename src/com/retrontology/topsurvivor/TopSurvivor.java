@@ -60,7 +60,7 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		// Store plugin and server
 		server = getServer();
 		playerDir = new File(server.getPluginManager().getPlugin("TopSurvivor").getDataFolder(), File.separator+"Players");
-		loadConfig();
+		loadConfigFile();
 		
 		// Init Hashmaps
 		tshashmap = new TopSurvivorHashMap(this);
@@ -175,7 +175,7 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		for(Player p: server.getOnlinePlayers()) { initPlayer(p); }
 	}
 	
-	// View Scoreboard !!! NEED TO FIX !!!
+	// View Scoreboard
 	public boolean viewScoreboard(Player player, int page) {
 		// Get Players
 		List<OfflinePlayer> topsurvivors = getSortedList();
@@ -303,10 +303,42 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		return false;
 	}
 	
+	// Add ticks to player's AFKTerminator Penalty
+	public boolean afkTerminatoryPenaltyAdd(String player, int multiplier){
+		if(getPlayerList().contains(server.getOfflinePlayer(player))){
+			TopSurvivorPlayer tsp = tshashmap.getTopSurvivorPlayer(player);
+			tsp.setCurrentAfkTPenalty(tsp.getCurrentAfkTPenalty()+multiplier*getAFKTerminatorPenalty());
+			return true;
+		}
+		return false;
+	}
+	
+	// Remove ticks from player's AFKTerminator Penalty
+	public boolean afkTerminatoryPenaltyRemove(String player, int multiplier){
+		if(getPlayerList().contains(server.getOfflinePlayer(player))){
+			TopSurvivorPlayer tsp = tshashmap.getTopSurvivorPlayer(player);
+			if(multiplier*getAFKTerminatorPenalty() > tsp.getCurrentAfkTPenalty()){	tsp.setCurrentAfkTPenalty(0);
+			}else{ tsp.setCurrentAfkTPenalty(tsp.getCurrentAfkTPenalty()-multiplier*getAFKTerminatorPenalty()); }
+			return true;
+		}
+		return false;
+	}
+	
+	// Clear a player's AFKTerminator Penalty
+	public boolean afkTerminatoryPenaltyClear(String player){
+		if(getPlayerList().contains(server.getOfflinePlayer(player))){
+			tshashmap.getTopSurvivorPlayer(player).setCurrentAfkTPenalty(0);
+			return true;
+		}
+		return false;
+	}
+	
+	
+	
 	/* Config Methods */
 	
 	// Load config (load values in config.yml or create and init if it doesn't exist
-	public void loadConfig(){
+	public void loadConfigFile(){
 		if(!server.getPluginManager().getPlugin("TopSurvivor").getDataFolder().exists()){ server.getPluginManager().getPlugin("TopSurvivor").getDataFolder().mkdir(); }
 		configFile = new File(server.getPluginManager().getPlugin("TopSurvivor").getDataFolder(), File.separator+"config.yml");
 		if(!configFile.exists()){
@@ -316,9 +348,26 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		}else{ config = YamlConfiguration.loadConfiguration(configFile); }
 	}
 	
+	// Save Config (usually called when a value is modified)
+	public boolean saveConfigFile(){
+		try {
+	        config.save(configFile);
+	        return true;
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	        return false;
+	    }
+	}
+	
 	// Get AFKTerminator Penalty set in the config
 	public int getAFKTerminatorPenalty(){
 		return config.getInt("AfkTerminatorPenalty");
+	}
+	
+	// Set AFKTerminator Penalty in the config
+	public boolean setAFKTerminatorPenalty(int penalty){
+		config.set("AfkTerminatorPenalty", penalty);
+		return saveConfigFile();
 	}
 	
 }
