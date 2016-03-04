@@ -33,16 +33,28 @@ public class TopSurvivorCommandExecutor implements CommandExecutor {
 			}
 			if(args.length == 1){
 				// Reset
-				if(args[0].equalsIgnoreCase("reset") && (player.hasPermission("topsurvivor.admin"))){
-					player.sendMessage(ChatColor.AQUA + "Reset");
-					plugin.resetScoreboard();
-					return true;
+				if(args[0].equalsIgnoreCase("reset")){
+					if(player.hasPermission("topsurvivor.admin")){
+						plugin.resetScoreboard();
+						player.sendMessage("The Scoreboard has been reset!");
+						return true;
+					}else{
+						player.sendMessage(ChatColor.RED + "What do you think you are doing :I");
+						return true;
+					}
 				}
 				// Update
-				if(args[0].equalsIgnoreCase("update") && (player.hasPermission("topsurvivor.admin"))){
-					player.sendMessage(ChatColor.AQUA + "Updated");
-					Bukkit.getPluginManager().callEvent(tsupdate);
-					return true;
+				if(args[0].equalsIgnoreCase("update")){
+					if(player.hasPermission("topsurvivor.admin")){
+						Bukkit.getPluginManager().callEvent(tsupdate);
+						player.sendMessage("The Scoreboard has been updated!");
+						return true;
+					}
+					else{
+						player.sendMessage(ChatColor.RED + "What do you think you are doing :I");
+						return true;
+					}
+					
 				}
 				// View (No offset)
 				if(args[0].equalsIgnoreCase("view") && (player.hasPermission("topsurvivor.citizen"))){
@@ -79,34 +91,49 @@ public class TopSurvivorCommandExecutor implements CommandExecutor {
 				}
 			}
 			// Temp ban player command
-			if(args.length == 2 && args[0].equalsIgnoreCase("tempban") && player.hasPermission("topsurvivor.admin")){
-				if(plugin.tempBan(args[1])){
-					player.sendMessage(args[1] + " has been banned from the Top Survivor Leaderboard");
-					plugin.server.getLogger().info("[Top Survivor] " + args[1] + " has been banned");
-					return true;	
+			if(args.length == 2 && args[0].equalsIgnoreCase("tempban")){
+				if(player.hasPermission("topsurvivor.admin")){
+					if(plugin.tempBan(args[1])){
+						player.sendMessage(args[1] + " has been banned from the Top Survivor Leaderboard");
+						plugin.server.getLogger().info("[Top Survivor] " + args[1] + " has been banned");
+						return true;	
+					}else{
+						player.sendMessage("You did not enter a valid player");
+						return true;
+					}
 				}else{
-					player.sendMessage("You did not enter a valid player");
+					player.sendMessage(ChatColor.RED + "What do you think you are doing :I");
 					return true;
 				}
 			}
 			// Permaban player command
-			if(args.length == 2 && args[0].equalsIgnoreCase("permaban") && player.hasPermission("topsurvivor.admin")){
-				if(plugin.permaBan(args[1])){
-					player.sendMessage(args[1] + " has been permabanned from the Top Survivor Leaderboard. rip");
-					plugin.server.getLogger().info("[Top Survivor] " + args[1] + " has been permabanned");
-					return true;
+			if(args.length == 2 && args[0].equalsIgnoreCase("permaban")){
+				if(player.hasPermission("topsurvivor.admin")){
+					if(plugin.permaBan(args[1])){
+						player.sendMessage(args[1] + " has been permabanned from the Top Survivor Leaderboard. rip");
+						plugin.server.getLogger().info("[Top Survivor] " + args[1] + " has been permabanned");
+						return true;
+					}else{
+						player.sendMessage("You did not enter a valid player");
+						return true;
+					}
 				}else{
-					player.sendMessage("You did not enter a valid player");
+					player.sendMessage(ChatColor.RED + "What do you think you are doing :I");
 					return true;
 				}
 			}
 			// Unban player command
 			if(args.length == 2 && args[0].equalsIgnoreCase("unban") && player.hasPermission("topsurvivor.admin")){
-				if(plugin.unBan(args[1])){
-					player.sendMessage(args[1] + " has been unbanned from the Top Survivor Leaderboard");
-					plugin.server.getLogger().info("[Top Survivor] " + args[1] + " has been unbanned");
+				if(player.hasPermission("topsurvivor.admin")){
+					if(plugin.unBan(args[1])){
+						player.sendMessage(args[1] + " has been unbanned from the Top Survivor Leaderboard");
+						plugin.server.getLogger().info("[Top Survivor] " + args[1] + " has been unbanned");
+					}else{
+						player.sendMessage("You did not enter a valid player");
+						return true;
+					}
 				}else{
-					player.sendMessage("You did not enter a valid player");
+					player.sendMessage(ChatColor.RED + "What do you think you are doing :I");
 					return true;
 				}
 			}

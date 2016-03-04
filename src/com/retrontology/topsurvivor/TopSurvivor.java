@@ -181,7 +181,10 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		
 		// Clean and reinit players
 		for(OfflinePlayer player : topsurvivors) { 
-			if(!tshashmap.getTopSurvivorPlayer(player).getFlagPermaban()){ tshashmap.deleteTopSurvivorPlayer(player); }
+			if(!tshashmap.getTopSurvivorPlayer(player).getFlagPermaban()){
+				
+				tshashmap.deleteTopSurvivorPlayer(player);
+				}
 		}
 		makeScoreboard();
 		for(Player p: server.getOnlinePlayers()) { initPlayer(p); }
@@ -221,6 +224,8 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 			player.sendMessage("AFK Terminator Penalty: " + TimeConverter.getString(tsp.getCurrentAfkTPenalty()));
 			player.sendMessage("Current Time Counted for Top Survivor: " + TimeConverter.getString(timesincedeathobjective.getScore(requestedplayer).getScore() - tsp.getCurrentAfkTime() - tsp.getCurrentAfkTPenalty()));
 			player.sendMessage("Best Time Counted for Top Survivor: " + TimeConverter.getString(tsp.getTopTick() - tsp.getTopAfkTime() - tsp.getCurrentAfkTPenalty()));
+			player.sendMessage("Is Banned: " + ((tsp.getFlagExempt()) ? "Yah lol" : "Nope"));
+			player.sendMessage("Is PermaBanned: " + ((tsp.getFlagPermaban()) ? "Yah lol" : "Nope"));
 			return true;
 		}else{ return false; }
 	}
@@ -261,9 +266,9 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 			tsplayer.setFlagNew(false);
 			TopSurvivor.server.getLogger().info("[Top Survivor] " + tsplayer.getPlayerName() + " has been initiated");
 		}
-		if(!tsplayer.getFlagExempt()){ refreshPlayer(player); }
 		// Exclude admins and permabanned peeps
 		if(player.hasPermission("topsurvivor.admin") || tsplayer.getFlagPermaban()){ tsplayer.setFlagExempt(true); }
+		if(!tsplayer.getFlagExempt()){ refreshPlayer(player); }
 	}
 		
 	// Update Player Scores
