@@ -83,9 +83,9 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		
 		// Register Update Scheduler to run every 24000 ticks/1 day
 		BukkitScheduler scheduler = server.getScheduler();
-		scheduler.scheduleSyncRepeatingTask(this, new TopSurvivorTask(this), 0L, 24000L);
+		scheduler.scheduleSyncRepeatingTask(this, new TopSurvivorTask(this), 0L, getUpdateTime());
 		// Register AFKTerminator Scheduler to run every 1200 ticks/1 minute
-		scheduler.scheduleSyncRepeatingTask(this, new TopSurvivorAFKTUpdateTask(this), 0L, 1200L);
+		scheduler.scheduleSyncRepeatingTask(this, new TopSurvivorAFKTUpdateTask(this), 0L, getAFKTPollTime());
 		
 		// Register Commands
 		TopSurvivorCommandExecutor tscommandexec = new TopSurvivorCommandExecutor(this);
@@ -398,6 +398,12 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	
 	// Get Contest Length (in milliseconds)
 	public long getContestLength(){ return TimeConverter.daysToMilli(config.getInt("Contest.Length")); }
+	
+	// Get time between Top Survivor updates
+	public long getUpdateTime(){ return config.getLong("RefreshTime"); }
+	
+	// Get time between AfkTerminator polling
+	public long getAFKTPollTime(){ return config.getLong("AfkTerminatorPoll"); }
 	
 	// Set AFKTerminator Penalty in the config
 	public boolean setAFKTerminatorPenalty(int penalty){

@@ -4,6 +4,14 @@
 # Default is 24000 ticks (one day)
 AfkTerminatorPenalty: 24000
 
+# Time between updating all online players (in ticks)
+# Default is 24000 ticks (one day)
+RefreshTime: 24000
+
+# Time to poll for players using AFKTerminator (in ticks)
+# Default is 1200
+AfkTerminatorPoll: 1200
+
 # Length of contest time (in IRL days) 
 # Default is 30 days
 Contest.Length: 30
