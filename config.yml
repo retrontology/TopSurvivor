@@ -3,3 +3,19 @@
 # AfkTerminator multiplier (in ticks)
 # Default is 24000 ticks (one day)
 AfkTerminatorPenalty: 24000
+
+# Length of contest time (in IRL days) 
+# Default is 30 days
+Contest.Length: 30
+
+# When the contest started (in milliseconds)
+# Default is 0 (not in progress)
+# For internal use only
+# Don't mess with it unless you know what you are doing
+Contest.Start: 0
+
+# Flags #
+# These are for internal use only
+# Don't mess with these unless you know what you are doing
+
+Flag.Contest: false

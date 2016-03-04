@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -62,6 +63,12 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		playerDir = new File(server.getPluginManager().getPlugin("TopSurvivor").getDataFolder(), File.separator+"Players");
 		loadConfigFile();
 		
+		// Init Contest if not already
+		if(!getFlagContest()){
+			setContestStart(new Date().getTime());
+			setFlagContest(true);
+		}
+		
 		// Init Hashmaps
 		tshashmap = new TopSurvivorHashMap(this);
 		
@@ -80,7 +87,7 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		// Register AFKTerminator Scheduler to run every 1200 ticks/1 minute
 		scheduler.scheduleSyncRepeatingTask(this, new TopSurvivorAFKTUpdateTask(this), 0L, 1200L);
 		
-		// Register Commands !NEED TO FIX!
+		// Register Commands
 		TopSurvivorCommandExecutor tscommandexec = new TopSurvivorCommandExecutor(this);
 		this.getCommand("topsurvivor").setExecutor(tscommandexec);
 		
@@ -154,9 +161,13 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		
 		// Find Winners
 		List<OfflinePlayer> topsurvivors = getSortedList();
+		
+		// Dump scoreboard into logger
+		server.getLogger().info("[Top Survivor] The score for each player is:");
+		server.getLogger().info("--------------------------------------------");
 		for(OfflinePlayer player : topsurvivors){ 
 			TopSurvivorPlayer tsp = tshashmap.getTopSurvivorPlayer(player);
-			server.getLogger().info(player.getName() + ": " + (tsp.getTopTick() - tsp.getTopAfkTime() - tsp.getCurrentAfkTPenalty()));
+			server.getLogger().info("[Top Survivor] " + player.getName() + ": " + TimeConverter.getString(tsp.getTopTick() - tsp.getTopAfkTime() - tsp.getCurrentAfkTPenalty()));
 		}
 		
 		// Distribute Prizes
@@ -166,13 +177,19 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		survivortimeobjective.unregister();
 		timesincedeathobjective.unregister();
 		totalafktimeobjective.unregister();
-		makeScoreboard();
+		
 		
 		// Clean and reinit players
 		for(OfflinePlayer player : topsurvivors) { 
 			if(!tshashmap.getTopSurvivorPlayer(player).getFlagPermaban()){ tshashmap.deleteTopSurvivorPlayer(player); }
 		}
+		makeScoreboard();
 		for(Player p: server.getOnlinePlayers()) { initPlayer(p); }
+		
+		// Re-init Contest
+		setContestStart(new Date().getTime());
+		setFlagContest(true);
+		server.getLogger().info("[Top Survivor] The scoreboard has been reset!");
 	}
 	
 	// View Scoreboard
@@ -188,7 +205,8 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		int offset = (page-1)*10;
 		player.sendMessage("---- Top Survivors -- Page " + page + "/" + pagemax + " ----");
 		for(int i = offset; i < (10+offset) && i < topsurvivors.size(); i++){
-			player.sendMessage((i+1) + ". " + topsurvivors.get(i).getName());
+			TopSurvivorPlayer tsp = tshashmap.getTopSurvivorPlayer(topsurvivors.get(i));
+			player.sendMessage((i+1) + ". " + topsurvivors.get(i).getName() + ": " + TimeConverter.getString(tsp.getTopTick() - tsp.getCurrentAfkTime() - tsp.getCurrentAfkTPenalty()) );
 		}
 		return true;
 	}
@@ -243,6 +261,7 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 			tsplayer.setFlagNew(false);
 			TopSurvivor.server.getLogger().info("[Top Survivor] " + tsplayer.getPlayerName() + " has been initiated");
 		}
+		if(!tsplayer.getFlagExempt()){ refreshPlayer(player); }
 		// Exclude admins and permabanned peeps
 		if(player.hasPermission("topsurvivor.admin") || tsplayer.getFlagPermaban()){ tsplayer.setFlagExempt(true); }
 	}
@@ -260,6 +279,15 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 			int currentdays = (int)Math.floor((tsplayer.getTopTick() - tsplayer.getTopAfkTime() - tsplayer.getCurrentAfkTPenalty())/24000);
 			survivortimeobjective.getScore(player).setScore(currentdays);
 		}
+	}
+	
+	// Check to see if contest is over
+	public boolean checkContest(){
+		if(getContestStart() + getContestLength() <= new Date().getTime()){
+			server.getLogger().info("[Top Survivor] The contest has ended!");
+			resetScoreboard();
+			return true;
+		}else{ return false; }
 	}
 	
 	// Temp Ban Player
@@ -360,9 +388,16 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	}
 	
 	// Get AFKTerminator Penalty set in the config
-	public int getAFKTerminatorPenalty(){
-		return config.getInt("AfkTerminatorPenalty");
-	}
+	public int getAFKTerminatorPenalty(){ return config.getInt("AfkTerminatorPenalty"); }
+	
+	// Get Contest Flag
+	public boolean getFlagContest(){ return config.getBoolean("Flag.Contest"); }
+	
+	// Get Contest Start Time (in milliseconds)
+	public long getContestStart(){ return config.getLong("Contest.Start"); }
+	
+	// Get Contest Length (in milliseconds)
+	public long getContestLength(){ return TimeConverter.daysToMilli(config.getInt("Contest.Length")); }
 	
 	// Set AFKTerminator Penalty in the config
 	public boolean setAFKTerminatorPenalty(int penalty){
@@ -370,4 +405,21 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		return saveConfigFile();
 	}
 	
+	// Set Contest Flag
+	public boolean setFlagContest(boolean i){
+		config.set("Flag.Contest", i);
+		return saveConfigFile();
+	}
+	
+	// Set Contest Start Time (in milliseconds)
+	public boolean setContestStart(long i){
+		config.set("Contest.Start", i);
+		return saveConfigFile();
+	}
+	
+	// Set Contest Length (in milliseconds)
+	public boolean setContestLength(long i){
+		config.set("Contest.Length", i);
+		return saveConfigFile();
+	}
 }

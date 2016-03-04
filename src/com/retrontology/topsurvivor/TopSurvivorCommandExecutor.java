@@ -132,8 +132,8 @@ public class TopSurvivorCommandExecutor implements CommandExecutor {
 									}
 								}
 								if(plugin.afkTerminatoryPenaltyAdd(args[2], multiplier)){
-									player.sendMessage(args[2] + " has had " + (multiplier*plugin.getAFKTerminatorPenalty()) + "ticks added to their AFKTerminatorPenalty and now has a penalty of: " + plugin.tshashmap.getTopSurvivorPlayer(args[2]).getCurrentAfkTPenalty());
-									plugin.server.getLogger().info("[Top Survivor] " + args[2] + " has had " + (multiplier*plugin.getAFKTerminatorPenalty()) + "ticks added to their AFKTerminatorPenalty and now has a penalty of: " + plugin.tshashmap.getTopSurvivorPlayer(args[2]).getCurrentAfkTPenalty());
+									player.sendMessage(args[2] + " has had " + (multiplier*plugin.getAFKTerminatorPenalty()) + " ticks added to their AFKTerminatorPenalty and now has a penalty of: " + plugin.tshashmap.getTopSurvivorPlayer(args[2]).getCurrentAfkTPenalty());
+									plugin.server.getLogger().info("[Top Survivor] " + args[2] + " has had " + (multiplier*plugin.getAFKTerminatorPenalty()) + " ticks added to their AFKTerminatorPenalty and now has a penalty of: " + plugin.tshashmap.getTopSurvivorPlayer(args[2]).getCurrentAfkTPenalty());
 									return true;
 								}else{
 									player.sendMessage("Please enter a valid player");
@@ -161,7 +161,7 @@ public class TopSurvivorCommandExecutor implements CommandExecutor {
 									}
 								}
 								if(plugin.afkTerminatoryPenaltyRemove(args[2], multiplier)){
-									player.sendMessage(args[2] + " has had " + (multiplier*plugin.getAFKTerminatorPenalty()) + "ticks removed from their AFKTerminatorPenalty and now has a penalty of: " + plugin.tshashmap.getTopSurvivorPlayer(args[2]).getCurrentAfkTPenalty());
+									player.sendMessage(args[2] + " has had " + (multiplier*plugin.getAFKTerminatorPenalty()) + " ticks removed from their AFKTerminatorPenalty and now has a penalty of: " + plugin.tshashmap.getTopSurvivorPlayer(args[2]).getCurrentAfkTPenalty());
 									plugin.server.getLogger().info("[Top Survivor] " + args[2] + " has had " + (multiplier*plugin.getAFKTerminatorPenalty()) + "ticks added to their AFKTerminatorPenalty and now has a penalty of: " + plugin.tshashmap.getTopSurvivorPlayer(args[2]).getCurrentAfkTPenalty());
 									return true;
 								}else{

@@ -89,6 +89,7 @@ public class TopSurvivorListener implements Listener {
     public void updateTSTime(TopSurvivorUpdate event) {
 		for(Player p: TopSurvivor.server.getOnlinePlayers()) { plugin.refreshPlayer(p); }
 		TopSurvivor.server.getLogger().info("[Top Survivor] Top Survivors list updated");
+		
 	}
 	
 	// Event to poll for AFKTerminator Integration

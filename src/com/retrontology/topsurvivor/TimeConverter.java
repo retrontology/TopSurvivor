@@ -6,6 +6,7 @@ public class TimeConverter {
 	public static double hour = 1000;
 	public static double minute = 1000/60;
 	public static double second = minute/60;
+	public static long milliDays = 86400000;
 	
 	public static String getString(int ticks){
 		String time = "";
@@ -32,4 +33,11 @@ public class TimeConverter {
 		return (int) Math.floor(ticks%day%hour%minute/second);
 	}
 	
+	public static int milliToDays(long milli){
+		return (int)(milli/milliDays);
+	}
+	
+	public static long daysToMilli(int days){
+		return (long)days*milliDays;
+	}
 }
