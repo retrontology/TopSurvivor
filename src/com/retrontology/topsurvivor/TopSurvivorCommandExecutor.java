@@ -36,7 +36,7 @@ public class TopSurvivorCommandExecutor implements CommandExecutor {
 				if(args[0].equalsIgnoreCase("reset")){
 					if(player.hasPermission("topsurvivor.admin")){
 						plugin.resetScoreboard();
-						player.sendMessage("The Scoreboard has been reset!");
+						player.sendMessage(ChatColor.GREEN + "The Scoreboard has been reset!");
 						return true;
 					}else{
 						player.sendMessage(ChatColor.RED + "What do you think you are doing :I");
@@ -47,7 +47,7 @@ public class TopSurvivorCommandExecutor implements CommandExecutor {
 				if(args[0].equalsIgnoreCase("update")){
 					if(player.hasPermission("topsurvivor.admin")){
 						Bukkit.getPluginManager().callEvent(tsupdate);
-						player.sendMessage("The Scoreboard has been updated!");
+						player.sendMessage(ChatColor.GREEN + "The Scoreboard has been updated!");
 						return true;
 					}
 					else{
@@ -86,19 +86,25 @@ public class TopSurvivorCommandExecutor implements CommandExecutor {
 				}else if(player.hasPermission("topsurvivor.admin") || (args[1].equalsIgnoreCase(player.getName()))){
 					return plugin.viewPlayer(player, args[1]);
 				}else{
-					player.sendMessage("You did not enter a valid page/player");
+					player.sendMessage(ChatColor.RED + "You did not enter a valid page/player");
 					return true; 
 				}
 			}
 			// Temp ban player command
-			if(args.length == 2 && args[0].equalsIgnoreCase("tempban")){
+			if(args[0].equalsIgnoreCase("tempban")){
 				if(player.hasPermission("topsurvivor.admin")){
-					if(plugin.tempBan(args[1])){
-						player.sendMessage(args[1] + " has been banned from the Top Survivor Leaderboard");
-						plugin.server.getLogger().info("[Top Survivor] " + args[1] + " has been banned");
-						return true;	
+					if(args.length == 2){
+						if(plugin.tempBan(args[1])){
+							player.sendMessage(ChatColor.GREEN + args[1] + " has been banned from the Top Survivor Leaderboard");
+							plugin.server.getLogger().info("[Top Survivor] " + args[1] + " has been banned");
+							return true;	
+						}else{
+							player.sendMessage(ChatColor.RED + "You did not enter a valid player");
+							return true;
+						}
 					}else{
-						player.sendMessage("You did not enter a valid player");
+						player.sendMessage(ChatColor.YELLOW + "Usage: ");
+						player.sendMessage(ChatColor.YELLOW + "/topsurvivor tempban <player>");
 						return true;
 					}
 				}else{
@@ -107,14 +113,20 @@ public class TopSurvivorCommandExecutor implements CommandExecutor {
 				}
 			}
 			// Permaban player command
-			if(args.length == 2 && args[0].equalsIgnoreCase("permaban")){
+			if(args[0].equalsIgnoreCase("permaban")){
 				if(player.hasPermission("topsurvivor.admin")){
-					if(plugin.permaBan(args[1])){
-						player.sendMessage(args[1] + " has been permabanned from the Top Survivor Leaderboard. rip");
-						plugin.server.getLogger().info("[Top Survivor] " + args[1] + " has been permabanned");
-						return true;
+					if(args.length == 2){
+						if(plugin.permaBan(args[1])){
+							player.sendMessage(ChatColor.GREEN+ args[1] + " has been permabanned from the Top Survivor Leaderboard. rip");
+							plugin.server.getLogger().info("[Top Survivor] " + args[1] + " has been permabanned");
+							return true;
+						}else{
+							player.sendMessage(ChatColor.RED + "You did not enter a valid player");
+							return true;
+						}
 					}else{
-						player.sendMessage("You did not enter a valid player");
+						player.sendMessage(ChatColor.YELLOW + "Usage: ");
+						player.sendMessage(ChatColor.YELLOW + "/topsurvivor permaban <player>");
 						return true;
 					}
 				}else{
@@ -123,13 +135,20 @@ public class TopSurvivorCommandExecutor implements CommandExecutor {
 				}
 			}
 			// Unban player command
-			if(args.length == 2 && args[0].equalsIgnoreCase("unban") && player.hasPermission("topsurvivor.admin")){
+			if(args[0].equalsIgnoreCase("unban")){
 				if(player.hasPermission("topsurvivor.admin")){
-					if(plugin.unBan(args[1])){
-						player.sendMessage(args[1] + " has been unbanned from the Top Survivor Leaderboard");
-						plugin.server.getLogger().info("[Top Survivor] " + args[1] + " has been unbanned");
+					if(args.length == 2){
+						if(plugin.unBan(args[1])){
+							player.sendMessage(ChatColor.GREEN + args[1] + " has been unbanned from the Top Survivor Leaderboard");
+							plugin.server.getLogger().info("[Top Survivor] " + args[1] + " has been unbanned");
+							return true;
+						}else{
+							player.sendMessage(ChatColor.RED + "You did not enter a valid player");
+							return true;
+						}
 					}else{
-						player.sendMessage("You did not enter a valid player");
+						player.sendMessage(ChatColor.YELLOW + "Usage: ");
+						player.sendMessage(ChatColor.YELLOW + "/topsurvivor unban <player>");
 						return true;
 					}
 				}else{
@@ -149,7 +168,7 @@ public class TopSurvivorCommandExecutor implements CommandExecutor {
 								for(int i = 0; i < args[3].length(); i++){
 									// Signal for player info if not a number
 									if(Character.getNumericValue(args[3].charAt(i)) > 9){
-										player.sendMessage("Please enter a valid integer");
+										player.sendMessage(ChatColor.RED + "Please enter a valid integer");
 										return true;
 									}else{
 										// Move number left
@@ -159,15 +178,16 @@ public class TopSurvivorCommandExecutor implements CommandExecutor {
 									}
 								}
 								if(plugin.afkTerminatoryPenaltyAdd(args[2], multiplier)){
-									player.sendMessage(args[2] + " has had " + (multiplier*plugin.getAFKTerminatorPenalty()) + " ticks added to their AFKTerminatorPenalty and now has a penalty of: " + plugin.tshashmap.getTopSurvivorPlayer(args[2]).getCurrentAfkTPenalty());
+									player.sendMessage(ChatColor.GREEN + args[2] + " has had " + (multiplier*plugin.getAFKTerminatorPenalty()) + " ticks added to their AFKTerminatorPenalty and now has a penalty of: " + plugin.tshashmap.getTopSurvivorPlayer(args[2]).getCurrentAfkTPenalty());
 									plugin.server.getLogger().info("[Top Survivor] " + args[2] + " has had " + (multiplier*plugin.getAFKTerminatorPenalty()) + " ticks added to their AFKTerminatorPenalty and now has a penalty of: " + plugin.tshashmap.getTopSurvivorPlayer(args[2]).getCurrentAfkTPenalty());
 									return true;
 								}else{
-									player.sendMessage("Please enter a valid player");
+									player.sendMessage(ChatColor.RED + "Please enter a valid player");
+									return true;
 								}
 							}else{
-								player.sendMessage("Usage: ");
-								player.sendMessage("/topsurvivor afktpenalty add <player> <multiplier>");
+								player.sendMessage(ChatColor.YELLOW + "Usage: ");
+								player.sendMessage(ChatColor.YELLOW + "/topsurvivor afktpenalty add <player> <multiplier>");
 								return true;
 							}
 						}
@@ -178,7 +198,7 @@ public class TopSurvivorCommandExecutor implements CommandExecutor {
 								for(int i = 0; i < args[3].length(); i++){
 									// Signal for player info if not a number
 									if(Character.getNumericValue(args[3].charAt(i)) > 9){
-										player.sendMessage("Please enter a valid integer");
+										player.sendMessage(ChatColor.RED + "Please enter a valid integer");
 										return true;
 									}else{
 										// Move number left
@@ -188,15 +208,16 @@ public class TopSurvivorCommandExecutor implements CommandExecutor {
 									}
 								}
 								if(plugin.afkTerminatoryPenaltyRemove(args[2], multiplier)){
-									player.sendMessage(args[2] + " has had " + (multiplier*plugin.getAFKTerminatorPenalty()) + " ticks removed from their AFKTerminatorPenalty and now has a penalty of: " + plugin.tshashmap.getTopSurvivorPlayer(args[2]).getCurrentAfkTPenalty());
+									player.sendMessage(ChatColor.GREEN + args[2] + " has had " + (multiplier*plugin.getAFKTerminatorPenalty()) + " ticks removed from their AFKTerminatorPenalty and now has a penalty of: " + plugin.tshashmap.getTopSurvivorPlayer(args[2]).getCurrentAfkTPenalty());
 									plugin.server.getLogger().info("[Top Survivor] " + args[2] + " has had " + (multiplier*plugin.getAFKTerminatorPenalty()) + "ticks added to their AFKTerminatorPenalty and now has a penalty of: " + plugin.tshashmap.getTopSurvivorPlayer(args[2]).getCurrentAfkTPenalty());
 									return true;
 								}else{
-									player.sendMessage("Please enter a valid player");
+									player.sendMessage(ChatColor.RED + "Please enter a valid player");
+									return true;
 								}
 							}else{
-								player.sendMessage("Usage: ");
-								player.sendMessage("/topsurvivor afktpenalty remove <player> <multiplier>");
+								player.sendMessage(ChatColor.YELLOW + "Usage: ");
+								player.sendMessage(ChatColor.YELLOW + "/topsurvivor afktpenalty remove <player> <multiplier>");
 								return true;
 							}
 						}
@@ -204,14 +225,14 @@ public class TopSurvivorCommandExecutor implements CommandExecutor {
 						if(args[1].equalsIgnoreCase("clear")){
 							if(args.length == 3){
 								if(plugin.afkTerminatoryPenaltyClear(args[2])){
-									player.sendMessage(args[2] + " has had their AFKTerminator penalty cleared");
+									player.sendMessage(ChatColor.GREEN + args[2] + " has had their AFKTerminator penalty cleared");
 									plugin.server.getLogger().info("[Top Survivor] " + args[2] + " has had their AFKTerminator penalty cleared");
 								}else{
 									
 								}
 							}else{
-								player.sendMessage("Usage: ");
-								player.sendMessage("/topsurvivor afktpenalty clear <player>");
+								player.sendMessage(ChatColor.YELLOW + "Usage: ");
+								player.sendMessage(ChatColor.YELLOW + "/topsurvivor afktpenalty clear <player>");
 								return true;
 							}
 						}
@@ -222,7 +243,7 @@ public class TopSurvivorCommandExecutor implements CommandExecutor {
 								for(int i = 0; i < args[2].length(); i++){
 									// Signal for player info if not a number
 									if(Character.getNumericValue(args[2].charAt(i)) > 9){
-										player.sendMessage("Please enter a valid integer");
+										player.sendMessage(ChatColor.RED + "Please enter a valid integer");
 										return true;
 									}else{
 										// Move number left
@@ -232,30 +253,30 @@ public class TopSurvivorCommandExecutor implements CommandExecutor {
 									}
 								}
 								if(plugin.setAFKTerminatorPenalty(ticks)){
-									player.sendMessage("The AFKTerminator penalty has been set to " + ticks + " ticks");
+									player.sendMessage(ChatColor.GREEN + "The AFKTerminator penalty has been set to " + ticks + " ticks");
 									plugin.server.getLogger().info("[Top Survivor] " + "The AFKTerminator penalty has been set to " + ticks + " ticks");
 									return true;
 								}else{
-									player.sendMessage("The config file could not be saved for some rease :/ check the console/log for a stacktrace");
+									player.sendMessage(ChatColor.RED + "The config file could not be saved for some rease :/ check the console/log for a stacktrace");
 									return true;
 								}
 							}else{
-								player.sendMessage("Usage: ");
-								player.sendMessage("/topsurvivor afktpenalty set <ticks>");
+								player.sendMessage(ChatColor.YELLOW + "Usage: ");
+								player.sendMessage(ChatColor.YELLOW + "/topsurvivor afktpenalty set <ticks>");
 								return true;
 							}
 						}
 						
 					}else{
-						player.sendMessage("Usage: ");
-						player.sendMessage("/topsurvivor afktpenalty add <player> <multiplier>");
-						player.sendMessage("/topsurvivor afktpenalty remove <player> <multiplier>");
-						player.sendMessage("/topsurvivor afktpenalty clear <player>");
-						player.sendMessage("/topsurvivor afktpenalty set <ticks>");
+						player.sendMessage(ChatColor.YELLOW + "Usage: ");
+						player.sendMessage(ChatColor.YELLOW + "/topsurvivor afktpenalty add <player> <multiplier>");
+						player.sendMessage(ChatColor.YELLOW + "/topsurvivor afktpenalty remove <player> <multiplier>");
+						player.sendMessage(ChatColor.YELLOW + "/topsurvivor afktpenalty clear <player>");
+						player.sendMessage(ChatColor.YELLOW + "/topsurvivor afktpenalty set <ticks>");
 						return true;
 					}
 				}else{
-					player.sendMessage("What do you think you are doing :I");
+					player.sendMessage(ChatColor.RED + "What do you think you are doing :I");
 					return true;
 				}
 			}
