@@ -139,11 +139,13 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		}
 		
 		// Build Survivor Time Objective
-		for(OfflinePlayer player: getSortedList()){
-			TopSurvivorPlayer tsp = tshashmap.getTopSurvivorPlayer(player);
-			survivortimeobjective.getScore(player).setScore(TimeConverter.getDays(tsp.getTopTick() - tsp.getTopAfkTime() - tsp.getCurrentAfkTPenalty()));
+		if(!getSortedList().isEmpty()){
+			for(OfflinePlayer player: getSortedList()){
+				TopSurvivorPlayer tsp = tshashmap.getTopSurvivorPlayer(player);
+				survivortimeobjective.getScore(player).setScore(TimeConverter.getDays(tsp.getTopTick() - tsp.getTopAfkTime() - tsp.getCurrentAfkTPenalty()));
+			}
 		}
-				
+		
 		// Set survivor time to sidebar
 		survivortimeobjective.setDisplaySlot(DisplaySlot.SIDEBAR);
 	}
@@ -234,12 +236,13 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	public List<OfflinePlayer> getSortedList(){
 		File[] topsurvivorarray = playerDir.listFiles();
 		List<OfflinePlayer> topsurvivors = new ArrayList<OfflinePlayer>();
-		for(File playerfile : topsurvivorarray){
-		 	String player = playerfile.getName().substring(0, playerfile.getName().indexOf('.'));
-			if(!tshashmap.getTopSurvivorPlayer(player).getFlagExempt()){ topsurvivors.add(server.getOfflinePlayer(player)); }
+		if(!topsurvivors.isEmpty()){
+			for(File playerfile : topsurvivorarray){
+				String player = playerfile.getName().substring(0, playerfile.getName().indexOf('.'));
+				if(!tshashmap.getTopSurvivorPlayer(player).getFlagExempt()){ topsurvivors.add(server.getOfflinePlayer(player)); }
+			}
+			Collections.sort(topsurvivors, new TopSurvivorComparator());
 		}
-		//
-		Collections.sort(topsurvivors, new TopSurvivorComparator());
 		return topsurvivors;
 	}
 	
@@ -247,9 +250,10 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	public List<OfflinePlayer> getPlayerList(){
 		File[] topsurvivorarray = playerDir.listFiles();
 		List<OfflinePlayer> topsurvivors = new ArrayList<OfflinePlayer>();
-		for(File playerfile : topsurvivorarray){ topsurvivors.add(server.getOfflinePlayer(playerfile.getName().substring(0, playerfile.getName().indexOf('.')))); }
-		//
-		Collections.sort(topsurvivors, new TopSurvivorComparator());
+		if(!topsurvivors.isEmpty()){
+			for(File playerfile : topsurvivorarray){ topsurvivors.add(server.getOfflinePlayer(playerfile.getName().substring(0, playerfile.getName().indexOf('.')))); }
+			Collections.sort(topsurvivors, new TopSurvivorComparator());
+		}
 		return topsurvivors;
 	}
 	
