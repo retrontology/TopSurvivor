@@ -1,5 +1,9 @@
 # Top Survivor Config #
 
+# Enable Log Files on reset
+# Default is true
+LogFile: true
+
 # AfkTerminator multiplier (in ticks)
 # Default is 24000 ticks (one day)
 AfkTerminatorPenalty: 24000

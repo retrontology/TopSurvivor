@@ -166,7 +166,38 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		// Find Winners
 		List<OfflinePlayer> topsurvivors = getSortedList();
 		
-		// Dump scoreboard into logger
+		// Dump scoreboard into file
+		if(config.getBoolean("LogFile")){
+			File log = new File(server.getPluginManager().getPlugin("TopSurvivor").getDataFolder(), File.separator+"Logs");
+			if(!log.exists()){ log.mkdirs(); }
+			log = new File(log, File.separator+(new Date().getTime()));
+			try {
+				log.createNewFile();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			FileConfiguration logconfig = YamlConfiguration.loadConfiguration(log);
+			int count = 1;
+			for(OfflinePlayer player : topsurvivors){
+				String name = player.getName();
+				TopSurvivorPlayer tsp = tshashmap.getTopSurvivorPlayer(name);
+				logconfig.set(count + ".Name", name);
+				logconfig.set(count + ".SurvivorTime", TimeConverter.getString(tsp.getTopTick() - tsp.getTopAfkTime() - tsp.getCurrentAfkTPenalty()));
+				logconfig.set(count + ".TopTime", TimeConverter.getString(tsp.getTopTick()));
+				logconfig.set(count + ".TopAfk", TimeConverter.getString(tsp.getTopAfkTime()));
+				logconfig.set(count + ".AfkTPenalty", TimeConverter.getString(tsp.getCurrentAfkTPenalty()));
+				logconfig.set(count + ".TotalAfkTime", TimeConverter.getString(totalafktimeobjective.getScore(name).getScore()));
+				count++;
+			}
+			try {
+		        logconfig.save(log);
+		        server.getLogger().info("[Top Survivor] The players' data has been recorded to: Logs" + File.separator + log.getName());
+		    } catch (IOException e) {
+		        e.printStackTrace();
+		    }
+		}
+		
+		// Dump scoreboard into logger 
 		server.getLogger().info("[Top Survivor] The score for each player is:");
 		server.getLogger().info("--------------------------------------------");
 		for(OfflinePlayer player : topsurvivors){ 
