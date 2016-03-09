@@ -26,6 +26,8 @@ import org.bukkit.scoreboard.Score;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.ScoreboardManager;
 
+import com.retrontology.prizes.Prizes;
+
 
 public class TopSurvivor extends JavaPlugin implements Listener {
 	
@@ -36,7 +38,7 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	public static Scoreboard tsboard;
 	public static Objective survivortimeobjective;		// Days
 	public static Objective timesincedeathobjective;	// Ticks
-	public static Objective totalafktimeobjective;	// Ticks
+	public static Objective totalafktimeobjective;		// Ticks
 	
 	// Plugins/Server
 	public static Server server;
@@ -173,7 +175,8 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		}
 		
 		// Distribute Prizes
-		
+		Prizes.registerContest(this.getName());
+		if(!Prizes.makeFileFromList(this.getName(), topsurvivors)){ server.getLogger().info("[Top Survivor] The prizes could not be passed to the Prizes plugin"); }
 		
 		// Reset Objectives
 		survivortimeobjective.unregister();

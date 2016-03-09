@@ -3,9 +3,9 @@ package com.retrontology.topsurvivor;
 import java.io.File;
 import java.io.IOException;
 
-import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+
 
 public class TopSurvivorPlayer {
 	
