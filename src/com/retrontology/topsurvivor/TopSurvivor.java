@@ -56,8 +56,6 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	
 	
 	/* Startup */
-	
-	
 	@Override
 	public void onEnable() {
 		// Store plugin and server
@@ -96,7 +94,6 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	}
 	
 	/* Shutdown */
-	
 	@Override
 	public void onDisable() {
 		
@@ -270,7 +267,7 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	public List<OfflinePlayer> getSortedList(){
 		File[] topsurvivorarray = playerDir.listFiles();
 		List<OfflinePlayer> topsurvivors = new ArrayList<OfflinePlayer>();
-		if(!topsurvivors.isEmpty()){
+		if(topsurvivorarray.length != 0){
 			for(File playerfile : topsurvivorarray){
 				String player = playerfile.getName().substring(0, playerfile.getName().indexOf('.'));
 				if(!tshashmap.getTopSurvivorPlayer(player).getFlagExempt()){ topsurvivors.add(server.getOfflinePlayer(player)); }
@@ -284,7 +281,7 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	public List<OfflinePlayer> getPlayerList(){
 		File[] topsurvivorarray = playerDir.listFiles();
 		List<OfflinePlayer> topsurvivors = new ArrayList<OfflinePlayer>();
-		if(!topsurvivors.isEmpty()){
+		if(topsurvivorarray.length != 0){
 			for(File playerfile : topsurvivorarray){ topsurvivors.add(server.getOfflinePlayer(playerfile.getName().substring(0, playerfile.getName().indexOf('.')))); }
 			Collections.sort(topsurvivors, new TopSurvivorComparator());
 		}
