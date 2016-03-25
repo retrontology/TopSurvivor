@@ -28,6 +28,8 @@ import org.bukkit.scoreboard.ScoreboardManager;
 
 import com.retrontology.prizes.Prizes;
 
+import ru.tehkode.permissions.bukkit.PermissionsEx;
+
 
 public class TopSurvivor extends JavaPlugin implements Listener {
 	
@@ -142,14 +144,21 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		if((playerkillsobjective = tsboard.getObjective("tsplayerkills")) == null){
 			playerkillsobjective = tsboard.registerNewObjective("tsplayerkills", "playerKillCount");
 		}
+		if(!(playerkillsobjective.getDisplayName().equals("Player Kills"))){
+			playerkillsobjective.setDisplayName("Player Kills");
+		}
 		if((deathsobjective = tsboard.getObjective("tsdeaths")) == null){
 			deathsobjective = tsboard.registerNewObjective("tsdeaths", "deathCount");
+		}
+		if(!(deathsobjective.getDisplayName().equals("Deaths"))){
+			deathsobjective.setDisplayName("Deaths");
 		}
 		
 		
 		// Set objectives to appropriate slots
 		survivortimeobjective.setDisplaySlot(DisplaySlot.SIDEBAR);
 		playerkillsobjective.setDisplaySlot(DisplaySlot.BELOW_NAME);
+		deathsobjective.setDisplaySlot(DisplaySlot.PLAYER_LIST);
 	}
 	
 	// Reset Scoreboard
@@ -257,15 +266,25 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	// View detailed player data
 	public boolean viewPlayer(Player player, String requestedplayer) {
 		if(getPlayerList().contains(server.getOfflinePlayer(requestedplayer))){
+			// Add group names together in a string
+			String groups = "";
+			String[] groupsarray = PermissionsEx.getPermissionManager().getUser(requestedplayer).getGroupNames();
+			for(int i = 0; i < groupsarray.length; i++){
+				if(i > 0){ groups = groups + ", "; }
+				groups = groups + groupsarray[i];
+			}
 			TopSurvivorPlayer tsp = tshashmap.getTopSurvivorPlayer(requestedplayer);
-			player.sendMessage(ChatColor.YELLOW + "---- Top Survivor -- " + requestedplayer + " ----");
+			player.sendMessage(ChatColor.YELLOW + "---- Top Survivor -- " + ChatColor.WHITE + requestedplayer + ChatColor.YELLOW + " aka " + ChatColor.WHITE + this.getServer().getPlayer(requestedplayer).getDisplayName() + " ----");
 			player.sendMessage(ChatColor.YELLOW + "Time Since Last Death: " + ChatColor.WHITE + TimeConverter.getString(timesincedeathobjective.getScore(requestedplayer).getScore()));
 			player.sendMessage(ChatColor.YELLOW + "AFK Time Since Last Death: " + ChatColor.WHITE + TimeConverter.getString(tsp.getCurrentAfkTime()));
 			player.sendMessage(ChatColor.YELLOW + "AFK Terminator Penalty: " + ChatColor.WHITE + TimeConverter.getString(tsp.getCurrentAfkTPenalty()));
 			player.sendMessage(ChatColor.YELLOW + "Current Time Counted for Top Survivor: " + ChatColor.WHITE + TimeConverter.getString(timesincedeathobjective.getScore(requestedplayer).getScore() - tsp.getCurrentAfkTime() - tsp.getCurrentAfkTPenalty()));
 			player.sendMessage(ChatColor.YELLOW + "Best Time Counted for Top Survivor: " + ChatColor.WHITE + TimeConverter.getString(tsp.getTopTick() - tsp.getTopAfkTime() - tsp.getCurrentAfkTPenalty()));
 			player.sendMessage(ChatColor.YELLOW + "Current K/D: " + ChatColor.WHITE + playerkillsobjective.getScore(requestedplayer).getScore() + "/" + deathsobjective.getScore(requestedplayer).getScore());
-			player.sendMessage(ChatColor.YELLOW + "Total K/D: " + ChatColor.WHITE + (((tsp.getTotalPlayerKills() == null) ? 0 : tsp.getTotalPlayerKills()) + playerkillsobjective.getScore(requestedplayer).getScore()) + "/" + (((tsp.getTotalDeaths() == null) ? 0 : tsp.getTotalDeaths()) + deathsobjective.getScore(requestedplayer).getScore())); 
+			player.sendMessage(ChatColor.YELLOW + "Total K/D: " + ChatColor.WHITE + (((tsp.getTotalPlayerKills() == null) ? 0 : tsp.getTotalPlayerKills()) + playerkillsobjective.getScore(requestedplayer).getScore()) + "/" + (((tsp.getTotalDeaths() == null) ? 0 : tsp.getTotalDeaths()) + deathsobjective.getScore(requestedplayer).getScore()));
+			player.sendMessage(ChatColor.YELLOW + "First Spawned: " + ChatColor.WHITE + new Date(this.getServer().getPlayer(requestedplayer).getFirstPlayed()).toString());
+			player.sendMessage(ChatColor.YELLOW + "Last seen: " + ChatColor.WHITE + new Date(this.getServer().getPlayer(requestedplayer).getLastPlayed()).toString());
+			player.sendMessage(ChatColor.YELLOW + "Membership: " + ChatColor.WHITE + "[" + groups + "]");
 			player.sendMessage(ChatColor.YELLOW + "Is Banned: " + ChatColor.WHITE + ((tsp.getFlagExempt()) ? "Yah lol" : "Nope"));
 			player.sendMessage(ChatColor.YELLOW + "Is PermaBanned: " + ChatColor.WHITE + ((tsp.getFlagPermaban()) ? "Yah lol" : "Nope"));
 			return true;

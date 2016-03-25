@@ -11,5 +11,6 @@
 	<classpathentry kind="lib" path="C:/Users/Retrontology/Downloads/1.9/Server/plugins/Essentials-2.x-SNAPSHOT.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Retrontology/Downloads/ebean-2.7.0/ebean-2.7.0/ebean-2.7.0.jar"/>
 	<classpathentry kind="lib" path="/Prizes/target/Prizes.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Retrontology/Downloads/1.9/Plugins/PermissionsEx-1.23.4.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
