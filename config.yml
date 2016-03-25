@@ -1,5 +1,9 @@
 # Top Survivor Config #
 
+# Number of players to display in the sidebar
+# Default is 5
+Display.Count: 5
+
 # Enable Log Files on reset
 # Default is true
 LogFile: true
@@ -11,6 +15,9 @@ AfkTerminatorPenalty: 24000
 # Time between updating all online players (in ticks)
 # Default is 24000 ticks (one day)
 RefreshTime: 24000
+
+# Toggle to poll for AFKTerminator
+AfkTerminator: true
 
 # Time to poll for players using AFKTerminator (in ticks)
 # Default is 1200

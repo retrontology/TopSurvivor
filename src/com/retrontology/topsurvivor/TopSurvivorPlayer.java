@@ -43,6 +43,8 @@ public class TopSurvivorPlayer {
 		    config.set("Flag.Perma", false);			// Flag
 		    config.set("Top.Tick", 0);					// Ticks
 		    config.set("Top.AfkTime", 0);				// Ticks
+		    config.set("Total.PlayerKills", 0);
+		    config.set("Total.Deaths", 0);
 		 
 		    try {
 		        config.save(file);
@@ -75,6 +77,18 @@ public class TopSurvivorPlayer {
 	
 	public int getTopAfkTime(){
 		return config.getInt("Top.AfkTime");
+	}
+	
+	public Integer getTotalPlayerKills(){
+		return config.getInt("Total.PlayerKills");
+	}
+	
+	public Integer getTotalDeaths(){
+		return config.getInt("Total.Deaths");
+	}
+	
+	public int getSurvivorTime(){
+		return TimeConverter.getDays(this.getTopTick() - this.getTopAfkTime() - this.getCurrentAfkTPenalty());
 	}
 	
 	public boolean getFlagNew(){
@@ -128,6 +142,18 @@ public class TopSurvivorPlayer {
 	
 	public int setTopAfkTime(int i){
 		config.set("Top.AfkTime", i);
+		save();
+		return i;
+	}
+	
+	public int setTotalPlayerKills(int i){
+		config.set("Total.PlayerKills", i);
+		save();
+		return i;
+	}
+	
+	public int setTotalDeaths(int i){
+		config.set("Total.Deaths", i);
 		save();
 		return i;
 	}

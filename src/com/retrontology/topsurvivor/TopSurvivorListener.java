@@ -1,6 +1,9 @@
 package com.retrontology.topsurvivor;
 
+import java.util.List;
+
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -88,6 +91,12 @@ public class TopSurvivorListener implements Listener {
 	@EventHandler
     public void updateTSTime(TopSurvivorUpdate event) {
 		for(Player p: TopSurvivor.server.getOnlinePlayers()) { plugin.refreshPlayer(p); }
+		List<OfflinePlayer> list = plugin.getSortedList();
+		plugin.survivortimeobjective.unregister();
+		plugin.makeScoreboard();
+		for(int i = 0; i < plugin.getDisplayCount() && i < list.size(); i++){
+			plugin.survivortimeobjective.getScore(list.get(i)).setScore(plugin.tshashmap.getTopSurvivorPlayer(list.get(i)).getSurvivorTime());
+		}
 		TopSurvivor.server.getLogger().info("[Top Survivor] Top Survivors list updated");
 		
 	}

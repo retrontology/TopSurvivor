@@ -39,6 +39,8 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	public static Objective survivortimeobjective;		// Days
 	public static Objective timesincedeathobjective;	// Ticks
 	public static Objective totalafktimeobjective;		// Ticks
+	public static Objective playerkillsobjective;		// Count
+	public static Objective deathsobjective;		// Count
 	
 	// Plugins/Server
 	public static Server server;
@@ -61,6 +63,7 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		// Store plugin and server
 		server = getServer();
 		playerDir = new File(server.getPluginManager().getPlugin("TopSurvivor").getDataFolder(), File.separator+"Players");
+		if(!playerDir.exists()){ playerDir.mkdirs(); }
 		loadConfigFile();
 		
 		// Init Contest if not already
@@ -85,7 +88,7 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		BukkitScheduler scheduler = server.getScheduler();
 		scheduler.scheduleSyncRepeatingTask(this, new TopSurvivorTask(this), 0L, getUpdateTime());
 		// Register AFKTerminator Scheduler to run every 1200 ticks/1 minute
-		scheduler.scheduleSyncRepeatingTask(this, new TopSurvivorAFKTUpdateTask(this), 0L, getAFKTPollTime());
+		if(this.getAFKTerminator()){ scheduler.scheduleSyncRepeatingTask(this, new TopSurvivorAFKTUpdateTask(this), 0L, getAFKTPollTime()); }
 		
 		// Register Commands
 		TopSurvivorCommandExecutor tscommandexec = new TopSurvivorCommandExecutor(this);
@@ -136,17 +139,17 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		if((timesincedeathobjective = tsboard.getObjective("timesincedeath")) == null){
 			timesincedeathobjective = tsboard.registerNewObjective("timesincedeath", "stat.timeSinceDeath");
 		}
-		
-		// Build Survivor Time Objective
-		if(!getSortedList().isEmpty()){
-			for(OfflinePlayer player: getSortedList()){
-				TopSurvivorPlayer tsp = tshashmap.getTopSurvivorPlayer(player);
-				survivortimeobjective.getScore(player).setScore(TimeConverter.getDays(tsp.getTopTick() - tsp.getTopAfkTime() - tsp.getCurrentAfkTPenalty()));
-			}
+		if((playerkillsobjective = tsboard.getObjective("tsplayerkills")) == null){
+			playerkillsobjective = tsboard.registerNewObjective("tsplayerkills", "playerKillCount");
+		}
+		if((deathsobjective = tsboard.getObjective("tsdeaths")) == null){
+			deathsobjective = tsboard.registerNewObjective("tsdeaths", "deathCount");
 		}
 		
-		// Set survivor time to sidebar
+		
+		// Set objectives to appropriate slots
 		survivortimeobjective.setDisplaySlot(DisplaySlot.SIDEBAR);
+		playerkillsobjective.setDisplaySlot(DisplaySlot.BELOW_NAME);
 	}
 	
 	// Reset Scoreboard
@@ -156,6 +159,8 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 			TopSurvivorPlayer tsplayer = tshashmap.getTopSurvivorPlayer(p);
 			// Add final afktime to totalafktime
 			totalafktimeobjective.getScore(p).setScore(totalafktimeobjective.getScore(p).getScore() + tsplayer.getCurrentAfkTime());
+			tsplayer.setTotalDeaths(((tsplayer.getTotalDeaths() == null) ? 0 : tsplayer.getTotalDeaths()) + deathsobjective.getScore(p).getScore());
+			tsplayer.setTotalPlayerKills(((tsplayer.getTotalPlayerKills() == null) ? 0 : tsplayer.getTotalPlayerKills()) + playerkillsobjective.getScore(p).getScore());
 			// Mark final time
 			refreshPlayer(p);
 		}
@@ -210,6 +215,8 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		survivortimeobjective.unregister();
 		timesincedeathobjective.unregister();
 		totalafktimeobjective.unregister();
+		playerkillsobjective.unregister();
+		deathsobjective.unregister();
 		
 		
 		// Clean and reinit players
@@ -252,13 +259,15 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		if(getPlayerList().contains(server.getOfflinePlayer(requestedplayer))){
 			TopSurvivorPlayer tsp = tshashmap.getTopSurvivorPlayer(requestedplayer);
 			player.sendMessage(ChatColor.YELLOW + "---- Top Survivor -- " + requestedplayer + " ----");
-			player.sendMessage(ChatColor.YELLOW + "Time Since Last Death: " + TimeConverter.getString(timesincedeathobjective.getScore(requestedplayer).getScore()));
-			player.sendMessage(ChatColor.YELLOW + "AFK Time Since Last Death: " + TimeConverter.getString(tsp.getCurrentAfkTime()));
-			player.sendMessage(ChatColor.YELLOW + "AFK Terminator Penalty: " + TimeConverter.getString(tsp.getCurrentAfkTPenalty()));
-			player.sendMessage(ChatColor.YELLOW + "Current Time Counted for Top Survivor: " + TimeConverter.getString(timesincedeathobjective.getScore(requestedplayer).getScore() - tsp.getCurrentAfkTime() - tsp.getCurrentAfkTPenalty()));
-			player.sendMessage(ChatColor.YELLOW + "Best Time Counted for Top Survivor: " + TimeConverter.getString(tsp.getTopTick() - tsp.getTopAfkTime() - tsp.getCurrentAfkTPenalty()));
-			player.sendMessage(ChatColor.YELLOW + "Is Banned: " + ((tsp.getFlagExempt()) ? "Yah lol" : "Nope"));
-			player.sendMessage(ChatColor.YELLOW + "Is PermaBanned: " + ((tsp.getFlagPermaban()) ? "Yah lol" : "Nope"));
+			player.sendMessage(ChatColor.YELLOW + "Time Since Last Death: " + ChatColor.WHITE + TimeConverter.getString(timesincedeathobjective.getScore(requestedplayer).getScore()));
+			player.sendMessage(ChatColor.YELLOW + "AFK Time Since Last Death: " + ChatColor.WHITE + TimeConverter.getString(tsp.getCurrentAfkTime()));
+			player.sendMessage(ChatColor.YELLOW + "AFK Terminator Penalty: " + ChatColor.WHITE + TimeConverter.getString(tsp.getCurrentAfkTPenalty()));
+			player.sendMessage(ChatColor.YELLOW + "Current Time Counted for Top Survivor: " + ChatColor.WHITE + TimeConverter.getString(timesincedeathobjective.getScore(requestedplayer).getScore() - tsp.getCurrentAfkTime() - tsp.getCurrentAfkTPenalty()));
+			player.sendMessage(ChatColor.YELLOW + "Best Time Counted for Top Survivor: " + ChatColor.WHITE + TimeConverter.getString(tsp.getTopTick() - tsp.getTopAfkTime() - tsp.getCurrentAfkTPenalty()));
+			player.sendMessage(ChatColor.YELLOW + "Current K/D: " + ChatColor.WHITE + playerkillsobjective.getScore(requestedplayer).getScore() + "/" + deathsobjective.getScore(requestedplayer).getScore());
+			player.sendMessage(ChatColor.YELLOW + "Total K/D: " + ChatColor.WHITE + (((tsp.getTotalPlayerKills() == null) ? 0 : tsp.getTotalPlayerKills()) + playerkillsobjective.getScore(requestedplayer).getScore()) + "/" + (((tsp.getTotalDeaths() == null) ? 0 : tsp.getTotalDeaths()) + deathsobjective.getScore(requestedplayer).getScore())); 
+			player.sendMessage(ChatColor.YELLOW + "Is Banned: " + ChatColor.WHITE + ((tsp.getFlagExempt()) ? "Yah lol" : "Nope"));
+			player.sendMessage(ChatColor.YELLOW + "Is PermaBanned: " + ChatColor.WHITE + ((tsp.getFlagPermaban()) ? "Yah lol" : "Nope"));
 			return true;
 		}else{ return false; }
 	}
@@ -295,7 +304,6 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		// Look to see if player has been initiated yet
 		if(tsplayer.getFlagNew()){
 			// Init player scores
-			if(!player.hasPermission("topsurvivor.admin")){ TopSurvivor.survivortimeobjective.getScore(player).setScore(0); }
 			TopSurvivor.totalafktimeobjective.getScore(player).setScore(0);
 			TopSurvivor.timesincedeathobjective.getScore(player).setScore(0);
 			tsplayer.setFlagNew(false);
@@ -317,7 +325,6 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 				tsplayer.setTopAfkTime(tsplayer.getCurrentAfkTime());
 			}
 			int currentdays = (int)Math.floor((tsplayer.getTopTick() - tsplayer.getTopAfkTime() - tsplayer.getCurrentAfkTPenalty())/24000);
-			survivortimeobjective.getScore(player).setScore(currentdays);
 		}
 	}
 	
@@ -431,6 +438,9 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	    }
 	}
 	
+	// Get DisplayCount for sidebar
+	public int getDisplayCount(){ return config.getInt("Display.Count"); }
+	
 	// Get AFKTerminator Penalty set in the config
 	public int getAFKTerminatorPenalty(){ return config.getInt("AfkTerminatorPenalty"); }
 	
@@ -448,6 +458,9 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	
 	// Get time between AfkTerminator polling
 	public long getAFKTPollTime(){ return config.getLong("AfkTerminatorPoll"); }
+	
+	// Get if AfkTerminator is enabled
+	public boolean getAFKTerminator() { return config.getBoolean("AfkTerminator"); }
 	
 	// Set AFKTerminator Penalty in the config
 	public boolean setAFKTerminatorPenalty(int penalty){
