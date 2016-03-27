@@ -1,5 +1,6 @@
 package com.retrontology.topsurvivor;
 
+import java.util.Date;
 import java.util.List;
 
 import org.bukkit.Bukkit;
@@ -67,6 +68,7 @@ public class TopSurvivorListener implements Listener {
 	public void onDeath(PlayerDeathEvent event){
 		Player player = event.getEntity();
 		TopSurvivorPlayer tsplayer = plugin.tshashmap.getTopSurvivorPlayer(player);
+		tsplayer.setLastDeath(new Date().getTime());
 		// Finalize data in HashMap and clear it
 		TopSurvivor.tshashmap.onDeath(player);
 		

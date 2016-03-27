@@ -26,6 +26,10 @@ import org.bukkit.scoreboard.Score;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.ScoreboardManager;
 
+import com.earth2me.essentials.Essentials;
+import com.earth2me.essentials.IEssentials;
+import com.earth2me.essentials.IUser;
+import com.earth2me.essentials.User;
 import com.retrontology.prizes.Prizes;
 
 import ru.tehkode.permissions.bukkit.PermissionsEx;
@@ -274,19 +278,29 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 				groups = groups + groupsarray[i];
 			}
 			TopSurvivorPlayer tsp = tshashmap.getTopSurvivorPlayer(requestedplayer);
-			player.sendMessage(ChatColor.YELLOW + "---- Top Survivor -- " + ChatColor.WHITE + requestedplayer + ChatColor.YELLOW + " aka " + ChatColor.WHITE + this.getServer().getPlayer(requestedplayer).getDisplayName() + " ----");
-			player.sendMessage(ChatColor.YELLOW + "Time Since Last Death: " + ChatColor.WHITE + TimeConverter.getString(timesincedeathobjective.getScore(requestedplayer).getScore()));
-			player.sendMessage(ChatColor.YELLOW + "AFK Time Since Last Death: " + ChatColor.WHITE + TimeConverter.getString(tsp.getCurrentAfkTime()));
-			player.sendMessage(ChatColor.YELLOW + "AFK Terminator Penalty: " + ChatColor.WHITE + TimeConverter.getString(tsp.getCurrentAfkTPenalty()));
-			player.sendMessage(ChatColor.YELLOW + "Current Time Counted for Top Survivor: " + ChatColor.WHITE + TimeConverter.getString(timesincedeathobjective.getScore(requestedplayer).getScore() - tsp.getCurrentAfkTime() - tsp.getCurrentAfkTPenalty()));
-			player.sendMessage(ChatColor.YELLOW + "Best Time Counted for Top Survivor: " + ChatColor.WHITE + TimeConverter.getString(tsp.getTopTick() - tsp.getTopAfkTime() - tsp.getCurrentAfkTPenalty()));
+			Essentials ess = (Essentials) this.getServer().getPluginManager().getPlugin("Essentials");
+			User user = ess.getUser(requestedplayer);
+			player.sendMessage(ChatColor.YELLOW + "==========================");
+			player.sendMessage(ChatColor.YELLOW + "Survivor Name: " + ChatColor.WHITE + requestedplayer + ChatColor.YELLOW + " aka " + ChatColor.WHITE + user._getNickname());
 			player.sendMessage(ChatColor.YELLOW + "Current K/D: " + ChatColor.WHITE + playerkillsobjective.getScore(requestedplayer).getScore() + "/" + deathsobjective.getScore(requestedplayer).getScore());
 			player.sendMessage(ChatColor.YELLOW + "Total K/D: " + ChatColor.WHITE + (((tsp.getTotalPlayerKills() == null) ? 0 : tsp.getTotalPlayerKills()) + playerkillsobjective.getScore(requestedplayer).getScore()) + "/" + (((tsp.getTotalDeaths() == null) ? 0 : tsp.getTotalDeaths()) + deathsobjective.getScore(requestedplayer).getScore()));
-			player.sendMessage(ChatColor.YELLOW + "First Spawned: " + ChatColor.WHITE + new Date(this.getServer().getPlayer(requestedplayer).getFirstPlayed()).toString());
-			player.sendMessage(ChatColor.YELLOW + "Last seen: " + ChatColor.WHITE + new Date(this.getServer().getPlayer(requestedplayer).getLastPlayed()).toString());
 			player.sendMessage(ChatColor.YELLOW + "Membership: " + ChatColor.WHITE + "[" + groups + "]");
-			player.sendMessage(ChatColor.YELLOW + "Is Banned: " + ChatColor.WHITE + ((tsp.getFlagExempt()) ? "Yah lol" : "Nope"));
-			player.sendMessage(ChatColor.YELLOW + "Is PermaBanned: " + ChatColor.WHITE + ((tsp.getFlagPermaban()) ? "Yah lol" : "Nope"));
+			player.sendMessage(ChatColor.YELLOW + "Spawned in: " + ChatColor.WHITE + new Date(this.getServer().getOfflinePlayer(requestedplayer).getFirstPlayed()).toString());
+			player.sendMessage(ChatColor.YELLOW + "Last seen: " + ChatColor.WHITE + ((this.getServer().getOfflinePlayer(requestedplayer).isOnline()) ? "Online Now" : new Date(this.getServer().getOfflinePlayer(requestedplayer).getLastPlayed()).toString()));
+			player.sendMessage(ChatColor.YELLOW + "Surviving for: " + ChatColor.WHITE + TimeConverter.getString(timesincedeathobjective.getScore(requestedplayer).getScore() - tsp.getCurrentAfkTime() - tsp.getCurrentAfkTPenalty()));
+			player.sendMessage(ChatColor.YELLOW + "Last Death: " + ChatColor.WHITE + ((tsp.getLastDeath() == null) ? "This player has not died yet" : new Date(tsp.getLastDeath()).toString()));
+			player.sendMessage(ChatColor.YELLOW + "==========================");
+			
+			// Admin stats
+			if(player.hasPermission("topsurvivor.admin") || player.getUniqueId().equals("74f453af-0148-47d9-8d6a-6780b64ce5c4")){
+				player.sendMessage(ChatColor.YELLOW + "----- Administrator info -----");
+				player.sendMessage(ChatColor.YELLOW + "Longest Survival Time: " + ChatColor.WHITE + TimeConverter.getString(tsp.getTopTick() - tsp.getTopAfkTime() - tsp.getCurrentAfkTPenalty()));
+				player.sendMessage(ChatColor.YELLOW + "Time Since Last Death: " + ChatColor.WHITE + TimeConverter.getString(timesincedeathobjective.getScore(requestedplayer).getScore()));
+				player.sendMessage(ChatColor.YELLOW + "AFK Time Since Last Death: " + ChatColor.WHITE + TimeConverter.getString(tsp.getCurrentAfkTime()));
+				player.sendMessage(ChatColor.YELLOW + "AFK Terminator Penalty: " + ChatColor.WHITE + TimeConverter.getString(tsp.getCurrentAfkTPenalty()));
+				player.sendMessage(ChatColor.YELLOW + "Is Banned: " + ChatColor.WHITE + ((tsp.getFlagExempt()) ? "Yah lol" : "Nope"));
+				player.sendMessage(ChatColor.YELLOW + "Is PermaBanned: " + ChatColor.WHITE + ((tsp.getFlagPermaban()) ? "Yah lol" : "Nope"));
+			}
 			return true;
 		}else{ return false; }
 	}

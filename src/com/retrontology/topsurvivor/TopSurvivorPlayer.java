@@ -103,6 +103,12 @@ public class TopSurvivorPlayer {
 		return player;
 	}
 	
+	public Long getLastDeath(){
+		return config.getLong("Last.Death");
+	}
+	
+	
+	
 	// Set player info
 	public int setCurrentAfkTime(int i){
 		config.set("Current.AfkTime", i);
@@ -156,6 +162,12 @@ public class TopSurvivorPlayer {
 		config.set("Total.Deaths", i);
 		save();
 		return i;
+	}
+	
+	public long setLastDeath(long l){
+		config.set("Last.Death", l);
+		save();
+		return l;
 	}
 
 

