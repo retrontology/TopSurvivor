@@ -165,6 +165,17 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		deathsobjective.setDisplaySlot(DisplaySlot.PLAYER_LIST);
 	}
 	
+	// Refresh Scoreboard
+	public void refreshScoreboard(){
+		List<String> list = getSortedList();
+		survivortimeobjective.unregister();
+		makeScoreboard();
+		for(int i = 0; i < getDisplayCount() && i < list.size(); i++){
+			survivortimeobjective.getScore(list.get(i)).setScore(tshashmap.getTopSurvivorPlayer(list.get(i)).getSurvivorTime());
+		}
+		TopSurvivor.server.getLogger().info("[Top Survivor] Top Survivors list updated");
+	}
+	
 	// Reset Scoreboard
 	public void resetScoreboard() {
 		// Finalize online player
@@ -179,7 +190,7 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		}
 		
 		// Find Winners
-		List<OfflinePlayer> topsurvivors = getSortedList();
+		List<String> topsurvivors = getSortedList();
 		
 		// Dump scoreboard into file
 		if(config.getBoolean("LogFile")){
@@ -193,8 +204,7 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 			}
 			FileConfiguration logconfig = YamlConfiguration.loadConfiguration(log);
 			int count = 1;
-			for(OfflinePlayer player : topsurvivors){
-				String name = player.getName();
+			for(String name : topsurvivors){
 				TopSurvivorPlayer tsp = tshashmap.getTopSurvivorPlayer(name);
 				logconfig.set(count + ".Name", name);
 				logconfig.set(count + ".SurvivorTime", TimeConverter.getString(tsp.getTopTick() - tsp.getTopAfkTime() - tsp.getCurrentAfkTPenalty()));
@@ -215,14 +225,14 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		// Dump scoreboard into logger 
 		server.getLogger().info("[Top Survivor] The score for each player is:");
 		server.getLogger().info("--------------------------------------------");
-		for(OfflinePlayer player : topsurvivors){ 
+		for(String player : topsurvivors){ 
 			TopSurvivorPlayer tsp = tshashmap.getTopSurvivorPlayer(player);
-			server.getLogger().info("[Top Survivor] " + player.getName() + ": " + TimeConverter.getString(tsp.getTopTick() - tsp.getTopAfkTime() - tsp.getCurrentAfkTPenalty()));
+			server.getLogger().info("[Top Survivor] " + player + ": " + TimeConverter.getString(tsp.getTopTick() - tsp.getTopAfkTime() - tsp.getCurrentAfkTPenalty()));
 		}
 		
 		// Distribute Prizes
 		Prizes.registerContest(this.getName());
-		if(!Prizes.makeFileFromList(this.getName(), topsurvivors)){ server.getLogger().info("[Top Survivor] The prizes could not be passed to the Prizes plugin"); }
+		if(!Prizes.makeFileFromStringList(this.getName(), topsurvivors)){ server.getLogger().info("[Top Survivor] The prizes could not be passed to the Prizes plugin"); }
 		
 		// Reset Objectives
 		survivortimeobjective.unregister();
@@ -233,11 +243,8 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		
 		
 		// Clean and reinit players
-		for(OfflinePlayer player : topsurvivors) { 
-			if(!tshashmap.getTopSurvivorPlayer(player).getFlagPermaban()){
-				
-				tshashmap.deleteTopSurvivorPlayer(player);
-				}
+		for(String player : topsurvivors) { 
+			if(!tshashmap.getTopSurvivorPlayer(player).getFlagPermaban()){ tshashmap.deleteTopSurvivorPlayer(player); }
 		}
 		makeScoreboard();
 		for(Player p: server.getOnlinePlayers()) { initPlayer(p); }
@@ -251,7 +258,7 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	// View Scoreboard
 	public boolean viewScoreboard(Player player, int page) {
 		// Get Players
-		List<OfflinePlayer> topsurvivors = getSortedList();
+		List<String> topsurvivors = getSortedList();
 		// Get max pages
 		int pagemax = topsurvivors.size();
 		pagemax = (pagemax % 10 == 0) ? pagemax/10: pagemax/10+1;
@@ -262,14 +269,14 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		player.sendMessage(ChatColor.YELLOW + "---- Top Survivors -- Page " + page + "/" + pagemax + " ----");
 		for(int i = offset; i < (10+offset) && i < topsurvivors.size(); i++){
 			TopSurvivorPlayer tsp = tshashmap.getTopSurvivorPlayer(topsurvivors.get(i));
-			player.sendMessage(ChatColor.YELLOW + ((i+1) + ". " + topsurvivors.get(i).getName() + ": " + TimeConverter.getString(tsp.getTopTick() - tsp.getCurrentAfkTime() - tsp.getCurrentAfkTPenalty())) );
+			player.sendMessage(ChatColor.YELLOW + ((i+1) + ". " + topsurvivors.get(i) + ": " + TimeConverter.getString(tsp.getTopTick() - tsp.getCurrentAfkTime() - tsp.getCurrentAfkTPenalty())) );
 		}
 		return true;
 	}
 	
 	// View detailed player data
 	public boolean viewPlayer(Player player, String requestedplayer) {
-		if(getPlayerList().contains(server.getOfflinePlayer(requestedplayer))){
+		if(getPlayerList().contains(requestedplayer)){
 			// Add group names together in a string
 			String groups = "";
 			String[] groupsarray = PermissionsEx.getPermissionManager().getUser(requestedplayer).getGroupNames();
@@ -306,13 +313,13 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	}
 	
 	// Get Sorted List of Eligible Players
-	public List<OfflinePlayer> getSortedList(){
+	public List<String> getSortedList(){
 		File[] topsurvivorarray = playerDir.listFiles();
-		List<OfflinePlayer> topsurvivors = new ArrayList<OfflinePlayer>();
+		List<String> topsurvivors = new ArrayList<String>();
 		if(topsurvivorarray.length != 0){
 			for(File playerfile : topsurvivorarray){
 				String player = playerfile.getName().substring(0, playerfile.getName().indexOf('.'));
-				if(!tshashmap.getTopSurvivorPlayer(player).getFlagExempt()){ topsurvivors.add(server.getOfflinePlayer(player)); }
+				if(!tshashmap.getTopSurvivorPlayer(player).getFlagExempt()){ topsurvivors.add(player); }
 			}
 			Collections.sort(topsurvivors, new TopSurvivorComparator());
 		}
@@ -320,11 +327,11 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	}
 	
 	// Get List of all players stored in yamls
-	public List<OfflinePlayer> getPlayerList(){
+	public List<String> getPlayerList(){
 		File[] topsurvivorarray = playerDir.listFiles();
-		List<OfflinePlayer> topsurvivors = new ArrayList<OfflinePlayer>();
+		List<String> topsurvivors = new ArrayList<String>();
 		if(topsurvivorarray.length != 0){
-			for(File playerfile : topsurvivorarray){ topsurvivors.add(server.getOfflinePlayer(playerfile.getName().substring(0, playerfile.getName().indexOf('.')))); }
+			for(File playerfile : topsurvivorarray){ topsurvivors.add(playerfile.getName().substring(0, playerfile.getName().indexOf('.'))); }
 			Collections.sort(topsurvivors, new TopSurvivorComparator());
 		}
 		return topsurvivors;
@@ -372,7 +379,7 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	
 	// Temp Ban Player
 	public boolean tempBan(String player){
-		if(getPlayerList().contains(server.getOfflinePlayer(player))){
+		if(getPlayerList().contains(player)){
 			TopSurvivorPlayer tsp = tshashmap.getTopSurvivorPlayer(player);
 			if(!tsp.getFlagExempt()){
 				refreshPlayer(server.getPlayer(player));
@@ -386,7 +393,7 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	
 	// Perma Ban Player
 	public boolean permaBan(String player){
-		if(getPlayerList().contains(server.getOfflinePlayer(player))){
+		if(getPlayerList().contains(player)){
 			TopSurvivorPlayer tsp = tshashmap.getTopSurvivorPlayer(player);
 			if(!tsp.getFlagPermaban()){
 				refreshPlayer(server.getPlayer(player));
@@ -401,7 +408,7 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	
 	// Unban Player
 	public boolean unBan(String player){
-		if(getPlayerList().contains(server.getOfflinePlayer(player))){
+		if(getPlayerList().contains(player)){
 			TopSurvivorPlayer tsp = tshashmap.getTopSurvivorPlayer(player);
 			if(tsp.getFlagExempt()){
 				refreshPlayer(server.getPlayer(player));
@@ -417,7 +424,7 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	
 	// Add ticks to player's AFKTerminator Penalty
 	public boolean afkTerminatoryPenaltyAdd(String player, int multiplier){
-		if(getPlayerList().contains(server.getOfflinePlayer(player))){
+		if(getPlayerList().contains(player)){
 			TopSurvivorPlayer tsp = tshashmap.getTopSurvivorPlayer(player);
 			tsp.setCurrentAfkTPenalty(tsp.getCurrentAfkTPenalty()+multiplier*getAFKTerminatorPenalty());
 			return true;
@@ -427,7 +434,7 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	
 	// Remove ticks from player's AFKTerminator Penalty
 	public boolean afkTerminatoryPenaltyRemove(String player, int multiplier){
-		if(getPlayerList().contains(server.getOfflinePlayer(player))){
+		if(getPlayerList().contains(player)){
 			TopSurvivorPlayer tsp = tshashmap.getTopSurvivorPlayer(player);
 			if(multiplier*getAFKTerminatorPenalty() > tsp.getCurrentAfkTPenalty()){	tsp.setCurrentAfkTPenalty(0);
 			}else{ tsp.setCurrentAfkTPenalty(tsp.getCurrentAfkTPenalty()-multiplier*getAFKTerminatorPenalty()); }
@@ -438,7 +445,7 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	
 	// Clear a player's AFKTerminator Penalty
 	public boolean afkTerminatoryPenaltyClear(String player){
-		if(getPlayerList().contains(server.getOfflinePlayer(player))){
+		if(getPlayerList().contains(player)){
 			tshashmap.getTopSurvivorPlayer(player).setCurrentAfkTPenalty(0);
 			return true;
 		}

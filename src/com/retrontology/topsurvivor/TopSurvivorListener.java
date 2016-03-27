@@ -93,7 +93,7 @@ public class TopSurvivorListener implements Listener {
 	@EventHandler
     public void updateTSTime(TopSurvivorUpdate event) {
 		for(Player p: TopSurvivor.server.getOnlinePlayers()) { plugin.refreshPlayer(p); }
-		List<OfflinePlayer> list = plugin.getSortedList();
+		List<String> list = plugin.getSortedList();
 		plugin.survivortimeobjective.unregister();
 		plugin.makeScoreboard();
 		for(int i = 0; i < plugin.getDisplayCount() && i < list.size(); i++){
