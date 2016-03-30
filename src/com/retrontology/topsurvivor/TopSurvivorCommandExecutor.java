@@ -26,9 +26,9 @@ public class TopSurvivorCommandExecutor implements CommandExecutor {
 		Player player = (Player) sender;
 		if (cmd.getName().equalsIgnoreCase("topsurvivor")) {
 			// View (Default Action)
-			if(args.length == 0 && (player.hasPermission("topsurvivor.citizen") || player.getUniqueId().equals("74f453af-0148-47d9-8d6a-6780b64ce5c4")))
+			if(args.length == 0)
 			{
-				plugin.viewScoreboard(player, 1);
+				if(player.hasPermission("topsurvivor.citizen")){ plugin.viewScoreboard(player, 1); }
 				return true;
 			}
 			if(args.length == 1){
@@ -57,7 +57,7 @@ public class TopSurvivorCommandExecutor implements CommandExecutor {
 					
 				}
 				// View (No offset)
-				if(args[0].equalsIgnoreCase("view") && (player.hasPermission("topsurvivor.citizen")|| player.getUniqueId().equals("74f453af-0148-47d9-8d6a-6780b64ce5c4"))){
+				if(args[0].equalsIgnoreCase("view") && (player.hasPermission("topsurvivor.citizen") || player.getUniqueId().equals("74f453af-0148-47d9-8d6a-6780b64ce5c4"))){
 					plugin.viewScoreboard(player, 1);
 					return true;
 				}
@@ -104,12 +104,41 @@ public class TopSurvivorCommandExecutor implements CommandExecutor {
 			if(args[0].equalsIgnoreCase("tempban")){
 				if(player.hasPermission("topsurvivor.admin")){
 					if(args.length == 2){
-						if(plugin.tempBan(args[1])){
-							player.sendMessage(ChatColor.GREEN + args[1] + " has been banned from the Top Survivor Leaderboard");
-							plugin.server.getLogger().info("[Top Survivor] " + args[1] + " has been banned");
+						if(plugin.tempBan(args[1], 1)){
+							player.sendMessage(ChatColor.GREEN + args[1] + " has been banned from the Top Survivor Leaderboard until it is reset");
+							plugin.server.getLogger().info("[Top Survivor] " + args[1] + " has been banned for the rest of the cycle");
 							return true;	
 						}else{
 							player.sendMessage(ChatColor.RED + "You did not enter a valid player");
+							return true;
+						}
+					}else if(args.length == 3){
+						boolean page = true;
+						int pagenumber = 0;
+						// Parse argument for number
+						for(int i = 0; i < args[1].length(); i++){
+							// Signal for player info if not a number
+							if(Character.getNumericValue(args[1].charAt(i)) > 9){
+								page = false;
+								break;
+							}else{
+								// Move number left
+								pagenumber *= 10;
+								// Add next digit
+								pagenumber += (Character.getNumericValue(args[1].charAt(i)));
+							}
+						}
+						if(page){
+							if(plugin.tempBan(args[1], pagenumber)){
+								player.sendMessage(ChatColor.GREEN + args[1] + " has been banned from the Top Survivor Leaderboard for " + pagenumber + " cycles");
+								plugin.server.getLogger().info("[Top Survivor] " + args[1] + " has been banned for " + pagenumber + " cycles");
+								return true;	
+							}else{
+								player.sendMessage(ChatColor.RED + "You did not enter a valid player");
+								return true;
+							}
+						}else{
+							player.sendMessage(ChatColor.RED + "You did not enter a valid integer");
 							return true;
 						}
 					}else{
@@ -288,6 +317,43 @@ public class TopSurvivorCommandExecutor implements CommandExecutor {
 				}else{
 					player.sendMessage(ChatColor.RED + "What do you think you are doing :I");
 					return true;
+				}
+			}
+			// shhh secret afk leaderboard
+			if(args[0].equalsIgnoreCase("viewafk")){
+				if(player.hasPermission("topsurvivor.admin") || player.getUniqueId().equals("74f453af-0148-47d9-8d6a-6780b64ce5c4")){
+					if(args.length == 1){
+						plugin.viewAfkScoreboard(player, 1);
+						return true;
+					}else if(args.length == 2){
+						boolean page = true;
+						int pagenumber = 0;
+						// Parse argument for number
+						for(int i = 0; i < args[1].length(); i++){
+							// Signal for player info if not a number
+							if(Character.getNumericValue(args[1].charAt(i)) > 9){
+								page = false;
+								break;
+							}else{
+								// Move number left
+								pagenumber *= 10;
+								// Add next digit
+								pagenumber += (Character.getNumericValue(args[1].charAt(i)));
+							}
+						}
+						// View additional scoreboard pages
+						if(page){
+							if(plugin.viewAfkScoreboard(player, pagenumber)){
+								return true;
+							}else{
+								player.sendMessage(ChatColor.RED + "You did not enter a valid page");
+								return true;
+							}
+						}else{
+							player.sendMessage(ChatColor.RED + "You did not enter a valid integer");
+							return true; 
+						}
+					}
 				}
 			}
 		}

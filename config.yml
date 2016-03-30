@@ -38,3 +38,4 @@ Contest.Start: 0
 # Don't mess with these unless you know what you are doing
 
 Flag.Contest: false
+Flag.UpdatePlayerFiles: true

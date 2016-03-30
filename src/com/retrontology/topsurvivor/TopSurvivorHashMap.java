@@ -1,6 +1,7 @@
 package com.retrontology.topsurvivor;
 
 import java.util.HashMap;
+import java.util.UUID;
 
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -23,7 +24,6 @@ public class TopSurvivorHashMap {
 	// AFK HashMaps
 	public static HashMap<String, Integer> timestampmap = new HashMap<String, Integer>();
 	public static HashMap<String, Integer> afkttimestampmap = new HashMap<String, Integer>();
-	//public static HashMap<String, Boolean> essentialsafkmap = new HashMap<String, Boolean>();
 	
 	// Player HashMap
 	public static HashMap<String, TopSurvivorPlayer> tsplayers = new HashMap<String, TopSurvivorPlayer>();
@@ -160,6 +160,16 @@ public class TopSurvivorHashMap {
 			tsplayers.put(player, new TopSurvivorPlayer(player, plugin));
 		}
 		return tsplayers.get(player);
+	}
+	public TopSurvivorPlayer getTopSurvivorPlayer(UUID player){
+		OfflinePlayer offplayer = plugin.getServer().getOfflinePlayer(player);
+		if(offplayer.getFirstPlayed() != 0){
+			if(tsplayers.get(offplayer.getName()) == null){
+				tsplayers.put(offplayer.getName(), new TopSurvivorPlayer(offplayer.getName(), plugin));
+			}
+			return tsplayers.get(offplayer.getName());
+		}
+		else{ return null; }
 	}
 	
 	// Remove TopSurvivorPlayer

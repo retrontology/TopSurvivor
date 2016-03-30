@@ -3,8 +3,12 @@ package com.retrontology.topsurvivor;
 import java.io.File;
 import java.io.IOException;
 
+import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+
+import com.earth2me.essentials.Essentials;
+import com.earth2me.essentials.User;
 
 
 public class TopSurvivorPlayer {
@@ -14,17 +18,20 @@ public class TopSurvivorPlayer {
 	private FileConfiguration config;
 	private String player;
 	private TopSurvivor plugin;
+	private OfflinePlayer offplayer;
 
 	/* Constructor */
 	public TopSurvivorPlayer(String playername, TopSurvivor plugin) {
 		// Set Class Variables
 		this.player = playername;
 		this.plugin = plugin;
+		this.offplayer = this.plugin.getServer().getOfflinePlayer(this.player);
+		
 		// Init directory if it's not there
 		File filedir = new File(plugin.server.getPluginManager().getPlugin("TopSurvivor").getDataFolder(), File.separator+"Players");
         if (!filedir.exists()) { filedir.mkdir(); }
         // Load player file into memory or, create and init it if there isn't one
-		file = new File(filedir, File.separator+player+".yml");
+		file = new File(filedir, File.separator+offplayer.getUniqueId().toString()+".yml");
 		if(!file.exists()){
 		    try {
 		        file.createNewFile();
@@ -33,27 +40,22 @@ public class TopSurvivorPlayer {
 		    } catch (IOException e) {
 		        e.printStackTrace();
 		    }
-		 
-		    config = YamlConfiguration.loadConfiguration(file);
-		    config.set("Player.Name", player);
-		    config.set("Current.AfkTime", 0);			// Ticks
-		    config.set("Current.AfkTPenalty", 0);		// Ticks
-		    config.set("Flag.Exempt", false);			// Flag
-		    config.set("Flag.New", true);				// Flag
-		    config.set("Flag.Perma", false);			// Flag
-		    config.set("Top.Tick", 0);					// Ticks
-		    config.set("Top.AfkTime", 0);				// Ticks
-		    config.set("Total.PlayerKills", 0);
-		    config.set("Total.Deaths", 0);
-		 
-		    try {
-		        config.save(file);
-		    } catch (IOException e) {
-		        e.printStackTrace();
-		    }
-		}else{
-			config = YamlConfiguration.loadConfiguration(file);
 		}
+		config = YamlConfiguration.loadConfiguration(file);
+		if(!config.contains("Player.Name")){ config.set("Player.Name", player); }
+		if(!config.contains("Current.AfkTime")){ config.set("Current.AfkTime", 0); }			// Ticks
+		if(!config.contains("Current.AfkTPenalty")){ config.set("Current.AfkTPenalty", 0); }	// Ticks
+		if(!config.contains("Flag.Exempt")){ config.set("Flag.Exempt", false); }				// Flag
+		if(!config.contains("Flag.New")){ config.set("Flag.New", true); }						// Flag
+		if(!config.contains("Flag.Perma")){ config.set("Flag.Perma", false); }					// Flag
+		if(!config.contains("Top.Tick")){ config.set("Top.Tick", 0); }							// Ticks
+		if(!config.contains("Top.AfkTime")){ config.set("Top.AfkTime", 0); }					// Ticks
+		if(!config.contains("Total.PlayerKills")){ config.set("Total.PlayerKills", 0); }		// Count
+		if(!config.contains("Total.Deaths")){ config.set("Total.Deaths", 0); }					// Count
+		if(!config.contains("Total.AFKTime")){ config.set("Total.AFKTime", 0); }				// Ticks
+		if(!config.contains("Ban.Length")){ config.set("Ban.Length", 0); }						// Ticks
+		if(!config.contains("Last.Death")){ config.set("Last.Death", 0); }						// Milliseconds
+		save();
 	}
 	
 	/* Class Methods */
@@ -105,6 +107,14 @@ public class TopSurvivorPlayer {
 	
 	public Long getLastDeath(){
 		return config.getLong("Last.Death");
+	}
+	
+	public int getTotalAfkTime(){
+		return config.getInt("Total.AFKTime");
+	}
+	
+	public int getBanLength(){
+		return config.getInt("Ban.Length");
 	}
 	
 	
@@ -168,6 +178,24 @@ public class TopSurvivorPlayer {
 		config.set("Last.Death", l);
 		save();
 		return l;
+	}
+	
+	public String setPlayerName(String s){
+		config.set("Player.Name", s);
+		save();
+		return s;
+	}
+	
+	public int setTotalAfkTime(int i){
+		config.set("Total.AFKTime", i);
+		save();
+		return i;
+	}
+	
+	public int setBanLength(int i){
+		config.set("Ban.Length", i);
+		save();
+		return i;
 	}
 
 

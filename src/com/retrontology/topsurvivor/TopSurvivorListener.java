@@ -75,7 +75,7 @@ public class TopSurvivorListener implements Listener {
 		// Mark final time
 		plugin.refreshPlayer(player);
 		// Add afktime to totalafktime
-		TopSurvivor.totalafktimeobjective.getScore(player).setScore(TopSurvivor.totalafktimeobjective.getScore(player).getScore() + tsplayer.getCurrentAfkTime());
+		tsplayer.setTotalAfkTime(tsplayer.getTotalAfkTime() + tsplayer.getCurrentAfkTime());
 		// Reset Objectives
 		tsplayer.setCurrentAfkTime(0);
 	}
