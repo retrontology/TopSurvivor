@@ -3,6 +3,9 @@
 # Number of players to display in the sidebar
 # Default is 5
 Display.Count: 5
+Display.Sidebar: true
+Display.Chat: true
+Display.Time: 24000
 
 # Enable Log Files on reset
 # Default is true
@@ -38,4 +41,4 @@ Contest.Start: 0
 # Don't mess with these unless you know what you are doing
 
 Flag.Contest: false
-Flag.UpdatePlayerFiles: true
+Flag.UpdatePlayerFiles: false

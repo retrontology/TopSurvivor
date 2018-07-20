@@ -1,8 +1,9 @@
 main: com.retrontology.topsurvivor.TopSurvivor
 name: TopSurvivor
-version: 0.9.9
+version: 1.3.4
 author: Retrontology
 description: A plugin that creates a scoreboard system from players time since last death, with afk time subtracted
+depend: [Essentials, Prizes, WorldGuard]
 permissions: 
   topsurvivor.citizen:
     description: Required for viewing leaderboard via command
@@ -10,7 +11,16 @@ permissions:
   topsurvivor.admin:
     description: Required for server admin commands such as reset, update, etc
     default: false
+  topsurvivor.historian:
+    description: Allows users to view other players' data as well as archive access
+    default: false
 commands:
+  profile:
+    description: View your own Top Survivor profile
+    permission: topsurvivor.citizen
+    permission-message: Become a citizen to view the Top Survivor Board
+    usage: |
+      /profile
   topsurvivor:
     description: View Top Survivor Leaderboard
     aliases: [ts, topsurvivors] 
@@ -19,12 +29,15 @@ commands:
     usage: |
       /topsurvivor - View Top Survivor Leaderboard
       /topsurvivor view <page/player>- View Top Survivor Leaderboard
+      /topsurvivor viewvoters <page>- View Top Voter Leaderboard
       /topsurvivor reset - Reset Top Survivor Leaderboard
+      /topsurvivor resetvotes - Reset Votifier and distribute prizes
       /topsurvivor update - Update Top Survivor Leaderboard
       /topsurvivor tempban <player> - Ban a player until the board is reset
       /topsurvivor permaban <player> - Ban a player until they are unbanned
       /topsurvivor unban <player> - Unban a player from the board
       /topsurvivor afktpenalty - Modify a players AFKTerminator Penalty
+      /topsurvivor archives - Access previously concluded TopSurvivor contests
   topsurvivor view:
     description: View Top Survivor Leaderboard
     aliases: [topsurvivor v]

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+	<classpathentry kind="lib" path="A:/MCServer/BuildTools/Spigot/1.11/Spigot/Spigot-API/target/spigot-api-1.11-R0.1-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="A:/MCServer/Plugins/afkTerminator.jar"/>
+	<classpathentry kind="lib" path="A:/MCServer/Plugins/EssentialsX-2.0.1.jar"/>
+	<classpathentry kind="lib" path="A:/MCServer/Plugins/GAListener.jar"/>
+	<classpathentry kind="lib" path="A:/MCServer/Plugins/PermissionsEx-1.23.4.jar"/>
+	<classpathentry kind="lib" path="A:/MCServer/Plugins/Prizes.jar"/>
+	<classpathentry kind="lib" path="A:/MCServer/ebean-2.7.3.jar"/>
+	<classpathentry kind="lib" path="A:/MCServer/Plugins/worldguard-6.2.jar"/>
+	<classpathentry kind="lib" path="A:/MCServer/Plugins/worldedit-bukkit-6.1.5.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
