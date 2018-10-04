@@ -1,6 +1,6 @@
 package com.retrontology.topsurvivor;
 
-import com.swifteh.GAL.VoteAPI;
+import com.Ben12345rocks.VotingPlugin.UserManager.UserManager;
 import java.util.Comparator;
 import org.bukkit.OfflinePlayer;
 
@@ -9,6 +9,6 @@ public class TopSurvivorVotifierComparator
 {
   public int compare(OfflinePlayer player1, OfflinePlayer player2)
   {
-    return VoteAPI.getVoteTotal(player2.getName()) - VoteAPI.getVoteTotal(player1.getName());
+    return UserManager.getInstance().getVotingPluginUser(player2.getName()).getPoints() - UserManager.getInstance().getVotingPluginUser(player1.getName()).getPoints();
   }
 }

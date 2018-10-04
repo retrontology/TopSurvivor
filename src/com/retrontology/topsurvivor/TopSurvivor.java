@@ -3,7 +3,7 @@ package com.retrontology.topsurvivor;
 import com.earth2me.essentials.Essentials;
 import com.earth2me.essentials.User;
 import com.retrontology.prizes.Prizes;
-import com.swifteh.GAL.VoteAPI;
+import com.Ben12345rocks.VotingPlugin.UserManager.UserManager;
 import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
@@ -37,6 +37,7 @@ import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Score;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.scoreboard.ScoreboardManager;
+/*
 import ru.tehkode.permissions.PermissionManager;
 import ru.tehkode.permissions.PermissionUser;
 import ru.tehkode.permissions.bukkit.PermissionsEx;
@@ -45,6 +46,7 @@ import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
+*/
 import com.sk89q.worldedit.BlockVector;
 
 public class TopSurvivor
@@ -298,7 +300,8 @@ public class TopSurvivor
     }
     return true;
   }
-  
+
+
   public boolean viewVoteScoreboard(Player player, int page)
   {
     List<OfflinePlayer> topsurvivors = getVotifierList();
@@ -311,10 +314,11 @@ public class TopSurvivor
     int offset = (page - 1) * 10;
     player.sendMessage(ChatColor.YELLOW + "---- Top Voters -- Page " + page + "/" + pagemax + " ----");
     for (int i = offset; (i < 10 + offset) && (i < topsurvivors.size()); i++) {
-      player.sendMessage(ChatColor.YELLOW + "" + (i + 1) + ". " + ((OfflinePlayer)topsurvivors.get(i)).getName() + ": " + VoteAPI.getVoteTotal(((OfflinePlayer)topsurvivors.get(i)).getName()));
+      player.sendMessage(ChatColor.YELLOW + "" + (i + 1) + ". " + ((OfflinePlayer)topsurvivors.get(i)).getName() + ": " + UserManager.getInstance().getVotingPluginUser(((OfflinePlayer)topsurvivors.get(i)).getName()).getPoints());
     }
     return true;
   }
+
   
   public boolean viewAfkScoreboard(Player player, int page)
   {
@@ -340,14 +344,6 @@ public class TopSurvivor
     if (getPlayerList().contains(requestedplayer))
     {
       String groups = "";
-      String[] groupsarray = PermissionsEx.getPermissionManager().getUser(requestedplayer).getGroupNames();
-      for (int i = 0; i < groupsarray.length; i++)
-      {
-        if (i > 0) {
-          groups = groups + ", ";
-        }
-        groups = groups + groupsarray[i];
-      }
       TopSurvivorPlayer tsp = tshashmap.getTopSurvivorPlayer(requestedplayer);
       ess = (Essentials)getServer().getPluginManager().getPlugin("Essentials");
       User user = ess.getUser(requestedplayer);
@@ -574,18 +570,6 @@ public class TopSurvivor
     if (!tsplayer.getFlagExempt()) {
       refreshPlayer(player);
     }
-    if ((player.getUniqueId().equals(this.mebb)) && (!player.hasPermission("topsurvivor.citizen"))) {
-      PermissionsEx.getPermissionManager().getUser(player).addPermission("topsurvivor.citizen");
-    }
-    if ((player.getUniqueId().equals(this.mebb)) && (!player.hasPermission("topsurvivor.historian"))) {
-      PermissionsEx.getPermissionManager().getUser(player).addPermission("topsurvivor.historian");
-    }
-    if ((player.getUniqueId().equals(this.tox)) && (!player.hasPermission("topsurvivor.citizen"))) {
-      PermissionsEx.getPermissionManager().getUser(player).addPermission("topsurvivor.citizen");
-    }
-    if ((player.getUniqueId().equals(this.tox)) && (!player.hasPermission("topsurvivor.historian"))) {
-      PermissionsEx.getPermissionManager().getUser(player).addPermission("topsurvivor.historian");
-    }
   }
   
   public void refreshPlayer(OfflinePlayer player)
@@ -718,7 +702,7 @@ public class TopSurvivor
       server.getLogger().info("[Top Survivor] No config file was found so the default file was copied over");
     }
     config = YamlConfiguration.loadConfiguration(configFile);
-    addRegionsToConfig();
+    //addRegionsToConfig();
   }
   
   public boolean saveConfigFile()
@@ -734,6 +718,8 @@ public class TopSurvivor
     }
     return false;
   }
+  
+  /*
   
   public boolean addRegionsToConfig(){
 	  for(World world : Bukkit.getWorlds()){
@@ -759,6 +745,8 @@ public class TopSurvivor
 	  }
 	  return true;
   }
+  
+  */
   
   public int getDisplayCount()
   {
@@ -829,6 +817,7 @@ public class TopSurvivor
     return saveConfigFile();
   }
   
+  /*
   private WorldGuardPlugin getWorldGuard() {
 	    Plugin wg = getServer().getPluginManager().getPlugin("WorldGuard");
 	 
@@ -839,4 +828,5 @@ public class TopSurvivor
 	 
 	    return (WorldGuardPlugin) wg;
 	}
+	*/
 }

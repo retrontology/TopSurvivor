@@ -1,6 +1,6 @@
 main: com.retrontology.topsurvivor.TopSurvivor
 name: TopSurvivor
-version: 1.3.4
+version: 1.4.0
 author: Retrontology
 description: A plugin that creates a scoreboard system from players time since last death, with afk time subtracted
 depend: [Essentials, Prizes, WorldGuard]

@@ -2,15 +2,12 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
-	<classpathentry kind="lib" path="C:/Users/Retrontology/Downloads/1.9/Spigot/Spigot-API/target/spigot-api-1.9-R0.1-SNAPSHOT.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="https://hub.spigotmc.org/javadocs/spigot/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/Retrontology/Downloads/1.9/Server/plugins/afkTerminator.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Retrontology/Downloads/1.9/Server/plugins/Essentials-2.x-SNAPSHOT.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Retrontology/Downloads/ebean-2.7.0/ebean-2.7.0/ebean-2.7.0.jar"/>
-	<classpathentry kind="lib" path="/Prizes/target/Prizes.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Retrontology/Downloads/1.9/Plugins/PermissionsEx-1.23.4.jar"/>
+	<classpathentry kind="lib" path="A:/Games/MC/Lib/afkTerminator.jar"/>
+	<classpathentry kind="lib" path="A:/Games/MC/Lib/Essentials-2.x-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="A:/Games/MC/Lib/ebean-2.7.0.jar"/>
+	<classpathentry kind="lib" path="A:/Games/MC/Lib/Spigot 1.13.1/Spigot/Spigot-API/target/spigot-api-1.13.1-R0.1-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="A:/Games/MC/Lib/FastAsyncWorldEdit-bukkit-18.10.03-e07ecb7-2052.jar"/>
+	<classpathentry kind="lib" path="A:/Games/MC/Lib/Prizes.jar"/>
+	<classpathentry kind="lib" path="A:/Games/MC/Lib/VotingPlugin.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -65,7 +65,7 @@ public class TopSurvivorListener
   {
 	  Player player = event.getEntity();
 	  TopSurvivorPlayer tsplayer = TopSurvivor.tshashmap.getTopSurvivorPlayer(player);
-	  if(this.plugin.isInSurvivalRegion(player)){
+	  //if(this.plugin.isInSurvivalRegion(player)){
 	    tsplayer.setLastDeath(new Date().getTime());
 	    
 	    TopSurvivor.tshashmap.onDeath(player);
@@ -75,9 +75,9 @@ public class TopSurvivorListener
 	    tsplayer.setTotalAfkTime(tsplayer.getTotalAfkTime() + tsplayer.getCurrentAfkTime());
 	    
 	    tsplayer.setCurrentAfkTime(0);
-	  }else{
-		  tsplayer.setLastSurvivalTick(this.plugin.timesincedeathobjective.getScore(player).getScore());
-	  }
+	  //}else{
+	//	  tsplayer.setLastSurvivalTick(this.plugin.timesincedeathobjective.getScore(player).getScore());
+	  //}
   }
   
   @EventHandler
