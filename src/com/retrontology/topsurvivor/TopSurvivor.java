@@ -138,22 +138,22 @@ public class TopSurvivor
     tsmanager = server.getScoreboardManager();
     tsboard = tsmanager.getMainScoreboard();
     if ((survivortimeobjective = tsboard.getObjective("survivortime")) == null) {
-      survivortimeobjective = tsboard.registerNewObjective("survivortime", "dummy");
+      survivortimeobjective = tsboard.registerNewObjective("survivortime", "dummy", "Top Survivors (Days)");
     }
     if (!survivortimeobjective.getDisplayName().equals("Top Survivors (Days)")) {
       survivortimeobjective.setDisplayName("Top Survivors (Days)");
     }
     if ((timesincedeathobjective = tsboard.getObjective("timesincedeath")) == null) {
-      timesincedeathobjective = tsboard.registerNewObjective("timesincedeath", "stat.timeSinceDeath");
+      timesincedeathobjective = tsboard.registerNewObjective("timesincedeath", "minecraft.custom:minecraft.time_since_death", "Time Since Death");
     }
     if ((playerkillsobjective = tsboard.getObjective("tsplayerkills")) == null) {
-      playerkillsobjective = tsboard.registerNewObjective("tsplayerkills", "playerKillCount");
+      playerkillsobjective = tsboard.registerNewObjective("tsplayerkills", "minecraft.custom:minecraft.player_kills", "Player Kills");
     }
     if (!playerkillsobjective.getDisplayName().equals("Player Kills")) {
-      playerkillsobjective.setDisplayName("Player Kills");
+      playerkillsobjective.setDisplayName("Deaths");
     }
     if ((deathsobjective = tsboard.getObjective("tsdeaths")) == null) {
-      deathsobjective = tsboard.registerNewObjective("tsdeaths", "deathCount");
+      deathsobjective = tsboard.registerNewObjective("tsdeaths", "minecraft.custom:minecraft.deaths", "Deaths");
     }
     if (!deathsobjective.getDisplayName().equals("Deaths")) {
       deathsobjective.setDisplayName("Deaths");
