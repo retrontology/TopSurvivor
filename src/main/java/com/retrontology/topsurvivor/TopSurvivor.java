@@ -46,8 +46,9 @@ import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
-*/
 import com.sk89q.worldedit.BlockVector;
+ */
+
 
 public class TopSurvivor
   extends JavaPlugin
@@ -112,9 +113,6 @@ public class TopSurvivor
     
     BukkitScheduler scheduler = server.getScheduler();
     scheduler.scheduleSyncRepeatingTask(this, new TopSurvivorTask(this), 0L, getUpdateTime());
-    if (getAFKTerminator()) {
-      scheduler.scheduleSyncRepeatingTask(this, new TopSurvivorAFKTUpdateTask(this), 0L, getAFKTPollTime());
-    }
     scheduler.scheduleSyncRepeatingTask(this, new TopSurvivorDisplayTask(this), 0L, getDisplayTime());
     TopSurvivorCommandExecutor tscommandexec = new TopSurvivorCommandExecutor(this);
     getCommand("topsurvivor").setExecutor(tscommandexec);
@@ -654,42 +652,6 @@ public class TopSurvivor
     return false;
   }
   
-  public boolean afkTerminatoryPenaltyAdd(String player, int multiplier)
-  {
-    if (getPlayerList().contains(player))
-    {
-      TopSurvivorPlayer tsp = tshashmap.getTopSurvivorPlayer(player);
-      tsp.setCurrentAfkTPenalty(tsp.getCurrentAfkTPenalty() + multiplier * getAFKTerminatorPenalty());
-      return true;
-    }
-    return false;
-  }
-  
-  public boolean afkTerminatoryPenaltyRemove(String player, int multiplier)
-  {
-    if (getPlayerList().contains(player))
-    {
-      TopSurvivorPlayer tsp = tshashmap.getTopSurvivorPlayer(player);
-      if (multiplier * getAFKTerminatorPenalty() > tsp.getCurrentAfkTPenalty()) {
-        tsp.setCurrentAfkTPenalty(0);
-      } else {
-        tsp.setCurrentAfkTPenalty(tsp.getCurrentAfkTPenalty() - multiplier * getAFKTerminatorPenalty());
-      }
-      return true;
-    }
-    return false;
-  }
-  
-  public boolean afkTerminatoryPenaltyClear(String player)
-  {
-    if (getPlayerList().contains(player))
-    {
-      tshashmap.getTopSurvivorPlayer(player).setCurrentAfkTPenalty(0);
-      return true;
-    }
-    return false;
-  }
-  
   public void loadConfigFile()
   {
     if (!server.getPluginManager().getPlugin("TopSurvivor").getDataFolder().exists()) {
@@ -752,11 +714,7 @@ public class TopSurvivor
   {
     return config.getInt("Display.Count");
   }
-  
-  public int getAFKTerminatorPenalty()
-  {
-    return config.getInt("AfkTerminatorPenalty");
-  }
+
   
   public boolean getFlagContest()
   {
@@ -778,25 +736,9 @@ public class TopSurvivor
     return config.getLong("RefreshTime");
   }
   
-  public long getAFKTPollTime()
-  {
-    return config.getLong("AfkTerminatorPoll");
-  }
-  
   public long getDisplayTime()
   {
 	  return config.getLong("Display.Time");
-  }
-  
-  public boolean getAFKTerminator()
-  {
-    return config.getBoolean("AfkTerminator");
-  }
-  
-  public boolean setAFKTerminatorPenalty(int penalty)
-  {
-    config.set("AfkTerminatorPenalty", Integer.valueOf(penalty));
-    return saveConfigFile();
   }
   
   public boolean setFlagContest(boolean i)

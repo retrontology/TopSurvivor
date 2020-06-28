@@ -120,14 +120,6 @@ public class TopSurvivorListener
   }
   
   @EventHandler
-  public void updateAFKTTime(TopSurvivorAFKTUpdate event)
-  {
-    for (Player p : TopSurvivor.server.getOnlinePlayers()) {
-      TopSurvivor.tshashmap.onAFKTerminator(p);
-    }
-  }
-  
-  @EventHandler
   public void updateDisplay(TopSurvivorDisplay event)
   {
 	  List<String> list = this.plugin.getSortedList();
