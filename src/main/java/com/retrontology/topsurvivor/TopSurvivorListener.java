@@ -46,7 +46,6 @@ public class TopSurvivorListener
       {
         if (player.isOnline()) {
           TopSurvivorListener.this.plugin.initPlayer(player);
-          TopSurvivor.tshashmap.onJoin(player);
         }
       }
     }, 10L);

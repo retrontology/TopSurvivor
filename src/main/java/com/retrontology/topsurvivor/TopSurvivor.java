@@ -181,8 +181,8 @@ public class TopSurvivor
       tsplayer.setTotalAfkTime(tsplayer.getTotalAfkTime() + tsplayer.getCurrentAfkTime());
       tsplayer.setTotalDeaths((tsplayer.getTotalDeaths() == null ? 0 : tsplayer.getTotalDeaths().intValue()) + deathsobjective.getScore(p).getScore());
       tsplayer.setTotalPlayerKills((tsplayer.getTotalPlayerKills() == null ? 0 : tsplayer.getTotalPlayerKills().intValue()) + playerkillsobjective.getScore(p).getScore());
-      
       refreshPlayer(p);
+      tshashmap.onDeath(p);
     }
     List<String> topsurvivors = getSortedList();
     if (config.getBoolean("LogFile"))
@@ -556,6 +556,7 @@ public class TopSurvivor
     TopSurvivorPlayer tsplayer = tshashmap.getTopSurvivorPlayer(player);
     tsplayer.setPlayerName(player.getName());
     player.setScoreboard(tsboard);
+    tshashmap.onJoin(player);
     if (tsplayer.getFlagNew())
     {
       timesincedeathobjective.getScore(player).setScore(0);

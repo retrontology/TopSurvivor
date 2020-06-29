@@ -174,6 +174,22 @@ public class TopSurvivorHashMap
       
       timestampmap.put(player.getName(), Integer.valueOf(timesincedeathscore.getScore()));
     }
+    if (pvpmap.get(player.getName()) != null)
+    {
+      Score timesincedeathscore = TopSurvivor.timesincedeathobjective.getScore(player);
+      int timestamp = ((Integer)pvpmap.get(player.getName())).intValue();
+      tsplayer.setCurrentAfkTime(tsplayer.getCurrentAfkTime() + (timesincedeathscore.getScore() - timestamp));
+
+      pvpmap.put(player.getName(), Integer.valueOf(timesincedeathscore.getScore()));
+    }
+    if (gamemodemap.get(player.getName()) != null)
+    {
+      Score timesincedeathscore = TopSurvivor.timesincedeathobjective.getScore(player);
+      int timestamp = ((Integer)gamemodemap.get(player.getName())).intValue();
+      tsplayer.setCurrentAfkTime(tsplayer.getCurrentAfkTime() + (timesincedeathscore.getScore() - timestamp));
+
+      gamemodemap.put(player.getName(), Integer.valueOf(timesincedeathscore.getScore()));
+    }
   }
   
   public TopSurvivorPlayer getTopSurvivorPlayer(Player player)
