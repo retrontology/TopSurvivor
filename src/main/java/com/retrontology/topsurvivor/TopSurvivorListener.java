@@ -46,6 +46,7 @@ public class TopSurvivorListener
       {
         if (player.isOnline()) {
           TopSurvivorListener.this.plugin.initPlayer(player);
+          TopSurvivor.tshashmap.onJoin(player);
         }
       }
     }, 10L);
@@ -91,6 +92,7 @@ public class TopSurvivorListener
 		  this.plugin.timesincedeathobjective.getScore(player).setScore((int) tsplayer.getLastSurvivalTick());
 		  tsplayer.setLastSurvivalTick(0);
 	  }
+      TopSurvivor.tshashmap.onRespawn(player);
   }
   
   @EventHandler
@@ -140,6 +142,6 @@ public class TopSurvivorListener
   @EventHandler
   public void onPVPToggle(PVPToggleEvent event)
   {
-      //plugin.getServer().broadcastMessage(event.getPlayer().getDisplayName() + "has set their pvp to " + event.getPVP());
+      TopSurvivor.tshashmap.onPVPChange(event.getPlayer(), event.getPVP());
   }
 }

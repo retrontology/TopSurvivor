@@ -4,7 +4,7 @@ import com.earth2me.essentials.IUser;
 import java.util.HashMap;
 import java.util.UUID;
 import net.ess3.api.events.AfkStatusChangeEvent;
-import com.github.aasmus.pvptoggle.PvPToggle;
+import com.github.aasmus.pvptoggle.utils.Util;
 
 import org.bukkit.GameMode;
 import org.bukkit.OfflinePlayer;
@@ -20,18 +20,18 @@ public class TopSurvivorHashMap
   public static HashMap<String, TopSurvivorPlayer> tsplayers = new HashMap();
   public static HashMap<String, Integer> gamemodemap = new HashMap();
   public static HashMap<String, Integer> pvpmap = new HashMap();
-  
+
   public TopSurvivorHashMap(TopSurvivor plugin)
   {
     this.plugin = plugin;
   }
-  
+
   public void onChangeEssentialsAfk(AfkStatusChangeEvent event)
   {
     IUser user = event.getAffected();
     Player player = TopSurvivor.server.getPlayer(user.getName());
     TopSurvivorPlayer tsplayer = (TopSurvivorPlayer)tsplayers.get(player.getName());
-    if (!user.isAfk())
+    if (!user.isAfk() && Util.getPlayerState(player.getUniqueId()) == false)
     {
       timestampmap.put(player.getName(), Integer.valueOf(TopSurvivor.timesincedeathobjective.getScore(player).getScore()));
     }
@@ -40,11 +40,11 @@ public class TopSurvivorHashMap
       Score timesincedeathscore = TopSurvivor.timesincedeathobjective.getScore(player);
       int timestamp = ((Integer)timestampmap.get(player.getName())).intValue();
       tsplayer.setCurrentAfkTime(tsplayer.getCurrentAfkTime() + (timesincedeathscore.getScore() - timestamp));
-      
+
       timestampmap.remove(user.getName());
     }
   }
-  
+
   public void onGameModeChange(Player player, GameMode gm)
   {
 	  if(gm == GameMode.SURVIVAL)
@@ -74,13 +74,40 @@ public class TopSurvivorHashMap
     }
     else
     {
+      if (timestampmap.get(player.getName()) != null)
+      {
+        TopSurvivorPlayer tsplayer = getTopSurvivorPlayer(player);
+        Score timesincedeathscore = TopSurvivor.timesincedeathobjective.getScore(player);
+        int timestamp = ((Integer)timestampmap.get(player.getName())).intValue();
+        tsplayer.setCurrentAfkTime(tsplayer.getCurrentAfkTime() + (timesincedeathscore.getScore() - timestamp));
+
+        timestampmap.remove(player.getName());
+      }
       if(pvpmap.get(player.getName()) == null)
       {
         pvpmap.put(player.getName(), Integer.valueOf(TopSurvivor.timesincedeathobjective.getScore(player).getScore()));
       }
     }
   }
-  
+
+  public void onJoin(Player player)
+  {
+    if(Util.getPlayerState(player.getUniqueId()))
+    {
+      if(pvpmap.get(player.getName()) != null)
+      {
+        TopSurvivor.timesincedeathobjective.getScore(player).setScore(((Integer)pvpmap.remove(player.getName())).intValue());
+      }
+    }
+    if(player.getGameMode() != GameMode.SURVIVAL)
+    {
+      if(gamemodemap.get(player.getName()) == null)
+      {
+        gamemodemap.put(player.getName(), Integer.valueOf(TopSurvivor.timesincedeathobjective.getScore(player).getScore()));
+      }
+    }
+  }
+
   public void onLeave(Player player)
   {
     TopSurvivorPlayer tsplayer = (TopSurvivorPlayer)tsplayers.get(player.getName());
@@ -121,6 +148,18 @@ public class TopSurvivorHashMap
     if (pvpmap.get(player.getName()) != null)
     {
       TopSurvivor.timesincedeathobjective.getScore(player).setScore(((Integer)pvpmap.remove(player.getName())).intValue());
+    }
+  }
+
+  public void onRespawn(Player player)
+  {
+    if (Util.getPlayerState(player.getUniqueId()) == true)
+    {
+      pvpmap.put(player.getName(), Integer.valueOf(TopSurvivor.timesincedeathobjective.getScore(player).getScore()));
+    }
+    if (player.getGameMode() != GameMode.SURVIVAL)
+    {
+      gamemodemap.put(player.getName(), Integer.valueOf(TopSurvivor.timesincedeathobjective.getScore(player).getScore()));
     }
   }
   
