@@ -6,7 +6,7 @@
 
     <groupId>com.retrontology</groupId>
     <artifactId>TopSurvivor</artifactId>
-    <version>2.0.0</version>
+    <version>2.0.1</version>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
@@ -65,6 +65,13 @@
             <groupId>com.github.retrontology</groupId>
             <artifactId>Prizes</artifactId>
             <version>0.3.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.retrontology</groupId>
+            <artifactId>PvPToggle</artifactId>
+            <version>master-6f4e1df27e-1</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

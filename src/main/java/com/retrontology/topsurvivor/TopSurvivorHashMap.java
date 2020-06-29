@@ -4,6 +4,7 @@ import com.earth2me.essentials.IUser;
 import java.util.HashMap;
 import java.util.UUID;
 import net.ess3.api.events.AfkStatusChangeEvent;
+import com.github.aasmus.pvptoggle.PvPToggle;
 
 import org.bukkit.GameMode;
 import org.bukkit.OfflinePlayer;
@@ -18,6 +19,7 @@ public class TopSurvivorHashMap
   public static HashMap<String, Integer> timestampmap = new HashMap();
   public static HashMap<String, TopSurvivorPlayer> tsplayers = new HashMap();
   public static HashMap<String, Integer> gamemodemap = new HashMap();
+  public static HashMap<String, Integer> pvpmap = new HashMap();
   
   public TopSurvivorHashMap(TopSurvivor plugin)
   {
@@ -60,6 +62,24 @@ public class TopSurvivorHashMap
 		  }
 	  }
   }
+
+  public void onPVPChange(Player player, boolean pvp)
+  {
+    if(pvp == true)
+    {
+      if(pvpmap.get(player.getName()) != null)
+      {
+        TopSurvivor.timesincedeathobjective.getScore(player).setScore(((Integer)pvpmap.remove(player.getName())).intValue());
+      }
+    }
+    else
+    {
+      if(pvpmap.get(player.getName()) == null)
+      {
+        pvpmap.put(player.getName(), Integer.valueOf(TopSurvivor.timesincedeathobjective.getScore(player).getScore()));
+      }
+    }
+  }
   
   public void onLeave(Player player)
   {
@@ -75,6 +95,10 @@ public class TopSurvivorHashMap
     if (gamemodemap.get(player.getName()) != null)
     {
       TopSurvivor.timesincedeathobjective.getScore(player).setScore(((Integer)gamemodemap.remove(player.getName())).intValue());
+    }
+    if (pvpmap.get(player.getName()) != null)
+    {
+      TopSurvivor.timesincedeathobjective.getScore(player).setScore(((Integer)pvpmap.remove(player.getName())).intValue());
     }
     removeTopSurvivorPlayer(player);
   }
@@ -93,6 +117,10 @@ public class TopSurvivorHashMap
     if (gamemodemap.get(player.getName()) != null)
     {
       TopSurvivor.timesincedeathobjective.getScore(player).setScore(((Integer)gamemodemap.remove(player.getName())).intValue());
+    }
+    if (pvpmap.get(player.getName()) != null)
+    {
+      TopSurvivor.timesincedeathobjective.getScore(player).setScore(((Integer)pvpmap.remove(player.getName())).intValue());
     }
   }
   

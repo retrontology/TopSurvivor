@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.logging.Logger;
 import net.ess3.api.IUser;
 import net.ess3.api.events.AfkStatusChangeEvent;
+import com.github.aasmus.pvptoggle.events.PVPToggleEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -134,5 +135,11 @@ public class TopSurvivorListener
   public void onModeChange(PlayerGameModeChangeEvent event)
   {
 	  TopSurvivor.tshashmap.onGameModeChange(event.getPlayer(), event.getNewGameMode());
+  }
+
+  @EventHandler
+  public void onPVPToggle(PVPToggleEvent event)
+  {
+      //plugin.getServer().broadcastMessage(event.getPlayer().getDisplayName() + "has set their pvp to " + event.getPVP());
   }
 }

@@ -1,10 +1,9 @@
 package com.retrontology.topsurvivor;
 
 import org.bukkit.Bukkit;
-import org.bukkit.scheduler.BukkitRunnable;
 
 public class TopSurvivorDisplayTask 
-extends BukkitRunnable
+implements Runnable
 {
 	  private TopSurvivor plugin;
 	  private TopSurvivorDisplay tsdisplay = new TopSurvivorDisplay();

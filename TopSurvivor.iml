@@ -39,6 +39,7 @@
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.logging.log4j:log4j-api:2.8.1" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.bstats:bstats-bukkit:1.4" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: com.github.Ben12345rocks:VotingPlugin:5.22" level="project" />
-    <orderEntry type="library" name="Maven: com.github.retrontology:Prizes:0.3.0" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: com.github.retrontology:Prizes:0.3.0" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: com.github.retrontology:PvPToggle:master-6f4e1df27e-1" level="project" />
   </component>
 </module>
